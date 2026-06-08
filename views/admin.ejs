@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Панель администратора | VOROBYEV.DEV</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 flex flex-col min-h-screen">
+
+    <!-- Навигация -->
+    <nav class="bg-slate-900 p-4 text-white flex justify-between items-center px-6">
+        <div class="flex items-center space-x-6">
+            <a href="/" class="text-xl font-extrabold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent tracking-tight">
+                <i class="fa-solid fa-cubes-stacked mr-2"></i>VOROBYEV.DEV
+            </a>
+            <div class="hidden md:flex space-x-6 text-sm text-slate-300 font-semibold">
+                <a href="/" class="hover:text-white transition">Главная</a>
+                <a href="/services" class="hover:text-white transition">Услуги</a>
+                <a href="/contacts" class="hover:text-white transition">Контакты</a>
+            </div>
+        </div>
+        <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-red-600/10">
+            <i class="fa-solid fa-right-from-bracket"></i> Выйти
+        </a>
+    </nav>
+
+    <!-- Контент дашборда -->
+    <div class="container mx-auto p-8 max-w-6xl py-12">
+        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
+            <div>
+                <h1 class="text-3xl font-extrabold text-slate-950">Панель управления</h1>
+                <p class="text-slate-500 text-sm mt-1">Просмотр входящих заявок из базы данных MS SQL.</p>
+            </div>
+            <!-- Карточка со счетчиком -->
+            <div class="bg-blue-50 border border-blue-100 rounded-2xl px-6 py-4 flex items-center gap-4">
+                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg">
+                    <i class="fa-solid fa-inbox"></i>
+                </div>
+                <div>
+                    <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Всего заявок</div>
+                    <div class="text-2xl font-extrabold text-blue-600"><%= leads.length %></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Таблица -->
+        <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-slate-200/60">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-slate-200">
+                    <thead class="bg-slate-50">
+                        <tr>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">ID</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Имя</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Телефон</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Сообщение</th>
+                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Дата</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 bg-white">
+                        <% if (leads.length === 0) { %>
+                            <tr>
+                                <td colspan="5" class="px-6 py-12 text-center text-slate-400">
+                                    <i class="fa-regular fa-folder-open text-3xl mb-3 block"></i>
+                                    Заявок пока нет. Отправьте первую через страницу Контактов!
+                                </td>
+                            </tr>
+                        <% } %>
+                        <% leads.forEach(lead => { %>
+                            <tr class="hover:bg-slate-50/50 transition">
+                                <td class="px-6 py-4 text-sm font-bold text-blue-600">#<%= lead.id %></td>
+                                <td class="px-6 py-4 text-sm font-semibold text-slate-900"><%= lead.name %></td>
+                                <td class="px-6 py-4 text-sm text-slate-600 font-mono"><%= lead.phone %></td>
+                                <td class="px-6 py-4 text-sm text-slate-500 max-w-xs truncate"><%= lead.message || '—' %></td>
+                                <td class="px-6 py-4 text-sm text-slate-400"><%= new Date(lead.created_at).toLocaleString('ru-RU') %></td>
+                            </tr>
+                        <% }) %>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="mt-auto bg-slate-900 text-slate-400 py-12 border-t border-slate-800 text-center text-sm">
+        <p>© 2026 VOROBYEV.DEV. Все права защищены. Работает на Microsoft SQL Server.</p>
+    </footer>
+
+</body>
+</html>

@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Каталог товаров | Мороз Плей</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .brand-font { font-family: 'Comfortaa', cursive; }
+    </style>
+</head>
+<body class="bg-slate-900 text-white flex flex-col min-h-screen">
+
+    <!-- Навигация -->
+    <nav class="sticky top-0 z-50 backdrop-blur-md bg-slate-900/80 border-b border-slate-800 px-6 py-4">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <a href="/" class="brand-font text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent flex items-center gap-2">
+                <i class="fa-solid fa-snowflake text-cyan-400"></i> Мороз Плей
+            </a>
+            <div class="flex items-center space-x-8 font-semibold text-slate-300">
+                <a href="/" class="hover:text-white transition">Главная</a>
+                <a href="/services" class="text-cyan-400 transition">Каталог товаров</a>
+                <a href="/contacts" class="hover:text-white transition">Сотрудничество</a>
+                <a href="/admin" class="bg-slate-800 text-white px-4 py-2 rounded-full text-sm hover:bg-slate-700 transition">
+                    <i class="fa-solid fa-user-gear mr-1.5"></i> Войти
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Контент каталога -->
+    <div class="container mx-auto p-8 max-w-6xl py-16">
+        <div class="text-center mb-16">
+            <span class="text-cyan-400 font-bold tracking-wider uppercase text-xs">В наличии на складе</span>
+            <h1 class="brand-font text-4xl font-bold text-white mt-2 mb-4">Наш Ассортимент</h1>
+            <p class="text-slate-400 max-w-md mx-auto">Эти товары загружаются из нашей базы данных MS SQL Server и ведут на официальные карточки Ozon.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <% services.forEach(product => { %>
+                <div class="bg-slate-800/40 rounded-3xl border border-slate-800 overflow-hidden hover:border-cyan-500/30 transition duration-300 flex flex-col justify-between p-5">
+                    
+                    <!-- Картинка товара -->
+                    <div class="bg-slate-950/50 rounded-2xl p-4 mb-4 flex items-center justify-center h-48 relative">
+                        <img src="<%= product.image %>" alt="<%= product.name %>" class="max-h-full max-w-full object-contain drop-shadow-md">
+                        <span class="absolute top-3 right-3 bg-red-500 text-white text-[10px] font-extrabold px-2 py-1 rounded-full">
+                            РАСПРОДАЖА
+                        </span>
+                    </div>
+
+                    <!-- Описание -->
+                    <div class="space-y-2 flex-grow flex flex-col justify-between">
+                        <h2 class="text-base font-bold text-slate-100 leading-snug min-h-[48px]"><%= product.name %></h2>
+                        
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
+                            <div>
+                                <span class="text-[10px] text-slate-500 uppercase font-bold tracking-wider block">Цена на Ozon</span>
+                                <span class="text-xl font-extrabold text-cyan-400"><%= product.price %></span>
+                            </div>
+                            <span class="text-xs text-emerald-400 font-bold"><i class="fa-solid fa-truck-fast"></i> Завтра</span>
+                        </div>
+                    </div>
+
+                    <!-- Кнопка перехода на Ozon -->
+                    <a href="<%= product.ozon_url %>" target="_blank" class="mt-4 w-full bg-[#005bff] hover:bg-[#004ecc] text-white text-sm py-3 rounded-xl font-bold transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-bag-shopping"></i> Купить на Ozon
+                    </a>
+
+                </div>
+            <% }) %>
+        </div>
+    </div>
+
+    <!-- Подвал -->
+    <footer class="mt-auto bg-slate-950 text-slate-500 py-12 border-t border-slate-800 text-center text-sm">
+        <p>© 2026 Магазин «Мороз Плей». Все права защищены. Официальный партнер маркетплейса OZON.</p>
+    </footer>
+
+</body>
+</html>
