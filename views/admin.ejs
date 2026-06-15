@@ -3,93 +3,410 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Панель администратора | VOROBYEV.DEV</title>
+    <title>Панель управления | Мороз Плей</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         body { font-family: 'Inter', sans-serif; }
+        .brand-font { font-family: 'Comfortaa', cursive; }
     </style>
 </head>
-<body class="bg-slate-50 text-slate-900 flex flex-col min-h-screen">
+<body class="bg-slate-950 text-white min-h-screen flex flex-col">
 
-    <!-- Навигация -->
-    <nav class="bg-slate-900 p-4 text-white flex justify-between items-center px-6">
-        <div class="flex items-center space-x-6">
-            <a href="/" class="text-xl font-extrabold bg-gradient-to-r from-blue-400 to-indigo-400 bg-clip-text text-transparent tracking-tight">
-                <i class="fa-solid fa-cubes-stacked mr-2"></i>VOROBYEV.DEV
-            </a>
-            <div class="hidden md:flex space-x-6 text-sm text-slate-300 font-semibold">
-                <a href="/" class="hover:text-white transition">Главная</a>
-                <a href="/services" class="hover:text-white transition">Услуги</a>
-                <a href="/contacts" class="hover:text-white transition">Контакты</a>
+    <!-- Шапка админки -->
+    <header class="bg-slate-900 border-b border-slate-800 px-6 py-4 sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto flex justify-between items-center">
+            <div class="flex items-center gap-4">
+                <a href="/" class="brand-font text-xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent flex items-center gap-2">
+                    <i class="fa-solid fa-snowflake text-cyan-400"></i> Мороз Плей
+                </a>
+                <span class="bg-cyan-500/10 text-cyan-400 text-xs font-bold px-2.5 py-1 rounded-full border border-cyan-500/20">Панель управления</span>
+            </div>
+            <div class="flex items-center gap-4">
+                <a href="/" target="_blank" class="text-slate-400 hover:text-white text-sm transition flex items-center gap-1">
+                    <i class="fa-solid fa-arrow-up-right-from-square"></i> На сайт
+                </a>
+                <a href="/logout" class="bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 px-4 py-2 rounded-xl text-sm font-semibold transition flex items-center gap-2">
+                    <i class="fa-solid fa-right-from-bracket"></i> Выйти
+                </a>
             </div>
         </div>
-        <a href="/logout" class="bg-red-600 hover:bg-red-700 px-4 py-2 rounded-full text-xs font-bold transition flex items-center gap-1.5 shadow-lg shadow-red-600/10">
-            <i class="fa-solid fa-right-from-bracket"></i> Выйти
-        </a>
-    </nav>
+    </header>
 
-    <!-- Контент дашборда -->
-    <div class="container mx-auto p-8 max-w-6xl py-12">
-        <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
-            <div>
-                <h1 class="text-3xl font-extrabold text-slate-950">Панель управления</h1>
-                <p class="text-slate-500 text-sm mt-1">Просмотр входящих заявок из базы данных MS SQL.</p>
-            </div>
-            <!-- Карточка со счетчиком -->
-            <div class="bg-blue-50 border border-blue-100 rounded-2xl px-6 py-4 flex items-center gap-4">
-                <div class="w-10 h-10 rounded-xl bg-blue-600 text-white flex items-center justify-center text-lg">
-                    <i class="fa-solid fa-inbox"></i>
+    <main class="max-w-7xl mx-auto w-full px-6 py-8 flex-grow">
+        <!-- Навигационные вкладки -->
+        <div class="flex border-b border-slate-800 mb-8 gap-6">
+            <button onclick="switchTab('leads')" id="tab-btn-leads" class="pb-4 text-base font-bold border-b-2 border-cyan-400 text-cyan-400 flex items-center gap-2 transition">
+                <i class="fa-solid fa-envelope"></i> Заявки клиентов 
+                <span class="bg-slate-800 text-slate-300 text-xs px-2 py-0.5 rounded-full"><%= leads.length %></span>
+            </button>
+            <button onclick="switchTab('products')" id="tab-btn-products" class="pb-4 text-base font-bold border-b-2 border-transparent text-slate-400 hover:text-white flex items-center gap-2 transition">
+                <i class="fa-solid fa-boxes-stacked"></i> Каталог товаров
+                <span class="bg-slate-800 text-slate-300 text-xs px-2 py-0.5 rounded-full"><%= products.length %></span>
+            </button>
+        </div>
+
+        <!-- ВКЛАДКА 1: ЗАЯВКИ -->
+        <section id="tab-content-leads" class="space-y-6">
+            <h2 class="text-2xl font-bold">Входящие предложения о сотрудничестве</h2>
+            <% if (leads.length === 0) { %>
+                <div class="bg-slate-900 border border-slate-800 p-8 rounded-3xl text-center text-slate-500">
+                    <i class="fa-solid fa-folder-open text-4xl mb-3"></i>
+                    <p>Заявок пока нет</p>
                 </div>
+            <% } else { %>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <% leads.forEach(lead => { %>
+                        <div class="bg-slate-900 border border-slate-800 p-6 rounded-3xl space-y-4 shadow-lg">
+                            <div class="flex justify-between items-start">
+                                <h3 class="font-bold text-lg text-white"><%= lead.name %></h3>
+                                <span class="text-xs text-slate-500">ID: <%= lead.id %></span>
+                            </div>
+                            <div class="space-y-2 text-sm text-slate-300">
+                                <p><strong class="text-slate-500">Телефон:</strong> <a href="tel:<%= lead.phone %>" class="text-cyan-400 hover:underline"><%= lead.phone %></a></p>
+                                <p class="bg-slate-950 p-4 rounded-2xl border border-slate-800/80 text-slate-400 italic">
+                                    "<%= lead.message %>"
+                                </p>
+                            </div>
+                        </div>
+                    <% }) %>
+                </div>
+            <% } %>
+        </section>
+
+        <!-- ВКЛАДКА 2: ТОВАРЫ -->
+        <section id="tab-content-products" class="hidden space-y-8">
+            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                 <div>
-                    <div class="text-xs text-slate-400 font-bold uppercase tracking-wider">Всего заявок</div>
-                    <div class="text-2xl font-extrabold text-blue-600"><%= leads.length %></div>
+                    <h2 class="text-2xl font-bold">Управление товарами</h2>
+                    <p class="text-slate-500 text-sm mt-1">Добавляйте новинки и редактируйте цены или остатки «на лету».</p>
+                </div>
+                <button onclick="toggleAddModal(true)" class="bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold px-5 py-3 rounded-2xl transition flex items-center gap-2 shadow-lg shadow-cyan-500/10">
+                    <i class="fa-solid fa-plus"></i> Добавить товар
+                </button>
+            </div>
+
+            <!-- Таблица товаров -->
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-950 border-b border-slate-800 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                                <th class="p-5">Товар</th>
+                                <th class="p-5">Цена (₽)</th>
+                                <th class="p-5">На складе (шт)</th>
+                                <th class="p-5">Статус</th>
+                                <th class="p-5 text-center">Действия</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-800/60 text-sm">
+                            <% products.forEach(product => { 
+                                const productImages = product.images || product.image || '';
+                                const firstImg = productImages.split(';')[0] || 'https://via.placeholder.com/150';
+                            %>
+                                <tr id="row-<%= product.id %>" class="hover:bg-slate-850/40 transition">
+                                    <td class="p-5 flex items-center gap-4">
+                                        <img src="<%= firstImg %>" class="w-12 h-12 rounded-xl object-contain bg-slate-950 p-1 border border-slate-800" alt="">
+                                        <div>
+                                            <div class="font-bold text-white max-w-xs truncate"><%= product.name %></div>
+                                            <a href="<%= product.ozon_url %>" target="_blank" class="text-xs text-blue-400 hover:underline flex items-center gap-1 mt-0.5">
+                                                <i class="fa-solid fa-up-right-from-square text-[10px]"></i> Ссылка на Ozon
+                                            </a>
+                                        </div>
+                                    </td>
+                                    <td class="p-5">
+                                        <input type="text" id="price-<%= product.id %>" value="<%= product.price %>" 
+                                               class="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl text-white w-24 text-center focus:border-cyan-500 focus:outline-none transition">
+                                    </td>
+                                    <td class="p-5">
+                                        <input type="number" id="stock-<%= product.id %>" value="<%= product.stock || 0 %>" 
+                                               class="bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl text-white w-20 text-center focus:border-cyan-500 focus:outline-none transition">
+                                    </td>
+                                    <td class="p-5">
+                                        <label class="relative inline-flex items-center cursor-pointer">
+                                            <input type="checkbox" id="avail-<%= product.id %>" <%= product.is_available ? 'checked' : '' %> class="sr-only peer">
+                                            <div class="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-400 peer-checked:after:bg-cyan-400 after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-cyan-950"></div>
+                                            <span class="ml-3 text-xs font-semibold text-slate-400 peer-checked:text-cyan-400">
+                                                <%= product.is_available ? 'В наличии' : 'Нет в наличии' %>
+                                            </span>
+                                        </label>
+                                    </td>
+                                    <td class="p-5">
+                                        <div class="flex items-center justify-center gap-2">
+                                            <!-- Быстрое сохранение (цена/склад) -->
+                                            <button onclick="saveQuickChanges(<%= product.id %>)" class="bg-emerald-500/10 hover:bg-emerald-500 text-emerald-400 hover:text-white p-2.5 rounded-xl border border-emerald-500/20 transition" title="Сохранить цену и склад">
+                                                <i class="fa-solid fa-floppy-disk"></i>
+                                            </button>
+                                            
+                                            <!-- Полное редактирование карточки -->
+                                            <button onclick="openEditModal({
+                                                id: '<%= product.id %>',
+                                                name: '<%= product.name.replace(/'/g, "\\'") %>',
+                                                price: '<%= product.price %>',
+                                                stock: '<%= product.stock || 0 %>',
+                                                ozon_url: '<%= product.ozon_url %>',
+                                                images: '<%= productImages %>',
+                                                is_available: <%= product.is_available ? true : false %>
+                                            })" class="bg-amber-500/10 hover:bg-amber-500 text-amber-400 hover:text-white p-2.5 rounded-xl border border-amber-500/20 transition" title="Редактировать всё">
+                                                <i class="fa-solid fa-pen-to-square"></i>
+                                            </button>
+
+                                            <!-- Удаление -->
+                                            <form action="/admin/products/delete/<%= product.id %>" method="POST" onsubmit="return confirm('Вы уверены, что хотите удалить этот товар?');" class="inline">
+                                                <button type="submit" class="bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white p-2.5 rounded-xl border border-red-500/20 transition" title="Удалить товар">
+                                                    <i class="fa-solid fa-trash-can"></i>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <% }) %>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-        </div>
+        </section>
+    </main>
 
-        <!-- Таблица -->
-        <div class="bg-white shadow-sm rounded-2xl overflow-hidden border border-slate-200/60">
-            <div class="overflow-x-auto">
-                <table class="min-w-full divide-y divide-slate-200">
-                    <thead class="bg-slate-50">
-                        <tr>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">ID</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Имя</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Телефон</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Сообщение</th>
-                            <th class="px-6 py-4 text-left text-xs font-bold text-slate-400 uppercase tracking-wider">Дата</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 bg-white">
-                        <% if (leads.length === 0) { %>
-                            <tr>
-                                <td colspan="5" class="px-6 py-12 text-center text-slate-400">
-                                    <i class="fa-regular fa-folder-open text-3xl mb-3 block"></i>
-                                    Заявок пока нет. Отправьте первую через страницу Контактов!
-                                </td>
-                            </tr>
-                        <% } %>
-                        <% leads.forEach(lead => { %>
-                            <tr class="hover:bg-slate-50/50 transition">
-                                <td class="px-6 py-4 text-sm font-bold text-blue-600">#<%= lead.id %></td>
-                                <td class="px-6 py-4 text-sm font-semibold text-slate-900"><%= lead.name %></td>
-                                <td class="px-6 py-4 text-sm text-slate-600 font-mono"><%= lead.phone %></td>
-                                <td class="px-6 py-4 text-sm text-slate-500 max-w-xs truncate"><%= lead.message || '—' %></td>
-                                <td class="px-6 py-4 text-sm text-slate-400"><%= new Date(lead.created_at).toLocaleString('ru-RU') %></td>
-                            </tr>
-                        <% }) %>
-                    </tbody>
-                </table>
+    <!-- МОДАЛЬНОЕ ОКНО: ДОБАВЛЕНИЕ ТОВАРА -->
+    <div id="add-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+                <h3 class="brand-font text-xl font-bold">Добавить новый товар</h3>
+                <button onclick="toggleAddModal(false)" class="text-slate-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
             </div>
+            
+            <form action="/admin/products/add" method="POST" enctype="multipart/form-data" class="p-6 space-y-4 overflow-y-auto flex-grow">
+                <div>
+                    <label class="block text-slate-400 text-xs font-bold uppercase mb-1.5">Название товара</label>
+                    <input type="text" name="name" required placeholder="Мягкая игрушка Стич 30 см" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white focus:border-cyan-500 focus:outline-none transition">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-slate-400 text-xs font-bold uppercase mb-1.5">Цена (с валютой)</label>
+                        <input type="text" name="price" required placeholder="1 250 ₽" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white focus:border-cyan-500 focus:outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 text-xs font-bold uppercase mb-1.5">На складе (шт)</label>
+                        <input type="number" name="stock" required placeholder="15" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white focus:border-cyan-500 focus:outline-none transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-400 text-xs font-bold uppercase mb-1.5">Ссылка на Ozon</label>
+                    <input type="url" name="ozon_url" required placeholder="https://www.ozon.ru/product/..." class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white focus:border-cyan-500 focus:outline-none transition">
+                </div>
+
+                <!-- МЕДИАТЕКА -->
+                <div class="border-t border-slate-800 pt-4 space-y-3">
+                    <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-images text-cyan-400"></i> Медиатека товара
+                    </h4>
+                    
+                    <div>
+                        <label class="block text-slate-400 text-xs mb-1">Загрузить фото с устройства (до 5 файлов)</label>
+                        <input type="file" name="images_files" multiple accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-cyan-500/10 file:text-cyan-400 hover:file:bg-cyan-500/20 file:cursor-pointer">
+                    </div>
+
+                    <div class="relative flex py-2 items-center">
+                        <div class="flex-grow border-t border-slate-800"></div>
+                        <span class="flex-shrink mx-4 text-slate-600 text-xs uppercase font-bold">ИЛИ</span>
+                        <div class="flex-grow border-t border-slate-800"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-400 text-xs mb-1">Вставить ссылки на фото через точку с запятой (`;`)</label>
+                        <textarea name="images_urls" placeholder="https://site.com/img1.jpg; https://site.com/img2.jpg" rows="2" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white text-xs focus:border-cyan-500 focus:outline-none transition"></textarea>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 pt-2">
+                    <input type="checkbox" name="is_available" value="1" id="add-avail" checked class="w-4 h-4 rounded bg-slate-950 border-slate-800 text-cyan-500 focus:ring-cyan-500">
+                    <label for="add-avail" class="text-sm text-slate-300 font-semibold cursor-pointer">Сразу опубликовать на сайте (В наличии)</label>
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-slate-950 font-bold py-3.5 rounded-xl hover:from-cyan-400 hover:to-blue-500 transition shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> Опубликовать товар
+                </button>
+            </form>
         </div>
     </div>
 
-    <!-- Подвал -->
-    <footer class="mt-auto bg-slate-900 text-slate-400 py-12 border-t border-slate-800 text-center text-sm">
-        <p>© 2026 VOROBYEV.DEV. Все права защищены. Работает на Microsoft SQL Server.</p>
-    </footer>
 
+    <!-- МОДАЛЬНОЕ ОКНО: РЕДАКТИРОВАНИЕ ТОВАРА -->
+    <div id="edit-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-slate-800 flex justify-between items-center">
+                <h3 class="brand-font text-xl font-bold text-amber-400">Редактировать товар</h3>
+                <button onclick="toggleEditModal(false)" class="text-slate-400 hover:text-white text-xl"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            
+            <form action="/admin/products/edit" method="POST" enctype="multipart/form-data" class="p-6 space-y-4 overflow-y-auto flex-grow">
+                <!-- Скрытый ID товара -->
+                <input type="hidden" name="id" id="edit-id">
+
+                <div>
+                    <label class="block text-slate-400 text-xs font-bold uppercase mb-1.5">Название товара</label>
+                    <input type="text" name="name" id="edit-name" required class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white focus:border-cyan-500 focus:outline-none transition">
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-slate-400 text-xs font-bold uppercase mb-1.5">Цена (с валютой)</label>
+                        <input type="text" name="price" id="edit-price" required class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white focus:border-cyan-500 focus:outline-none transition">
+                    </div>
+                    <div>
+                        <label class="block text-slate-400 text-xs font-bold uppercase mb-1.5">На складе (шт)</label>
+                        <input type="number" name="stock" id="edit-stock" required class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white focus:border-cyan-500 focus:outline-none transition">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-slate-400 text-xs font-bold uppercase mb-1.5">Ссылка на Ozon</label>
+                    <input type="url" name="ozon_url" id="edit-ozon_url" required class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white focus:border-cyan-500 focus:outline-none transition">
+                </div>
+
+                <!-- МЕДИАТЕКА -->
+                <div class="border-t border-slate-800 pt-4 space-y-3">
+                    <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                        <i class="fa-solid fa-images text-cyan-400"></i> Обновить фотографии
+                    </h4>
+                    
+                    <div>
+                        <label class="block text-slate-400 text-xs mb-1">Загрузить новые файлы (оставьте пустым, чтобы не менять)</label>
+                        <input type="file" name="images_files" multiple accept="image/*" class="w-full text-sm text-slate-400 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-cyan-500/10 file:text-cyan-400 hover:file:bg-cyan-500/20 file:cursor-pointer">
+                    </div>
+
+                    <div class="relative flex py-2 items-center">
+                        <div class="flex-grow border-t border-slate-800"></div>
+                        <span class="flex-shrink mx-4 text-slate-600 text-xs uppercase font-bold">ИЛИ</span>
+                        <div class="flex-grow border-t border-slate-800"></div>
+                    </div>
+
+                    <div>
+                        <label class="block text-slate-400 text-xs mb-1">Ссылки на фото через `;`</label>
+                        <textarea name="images_urls" id="edit-images_urls" rows="2" class="w-full bg-slate-950 border border-slate-800 p-3 rounded-xl text-white text-xs focus:border-cyan-500 focus:outline-none transition"></textarea>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-3 pt-2">
+                    <input type="checkbox" name="is_available" value="1" id="edit-avail" class="w-4 h-4 rounded bg-slate-950 border-slate-800 text-cyan-500 focus:ring-cyan-500">
+                    <label for="edit-avail" class="text-sm text-slate-300 font-semibold cursor-pointer">Опубликовать на сайте (В наличии)</label>
+                </div>
+
+                <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-orange-600 text-slate-950 font-bold py-3.5 rounded-xl hover:from-amber-400 hover:to-orange-500 transition shadow-lg shadow-amber-500/20 flex items-center justify-center gap-2">
+                    <i class="fa-solid fa-floppy-disk"></i> Сохранить изменения
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Переключение вкладок
+        function switchTab(tabName) {
+            const leadsContent = document.getElementById('tab-content-leads');
+            const productsContent = document.getElementById('tab-content-products');
+            const leadsBtn = document.getElementById('tab-btn-leads');
+            const productsBtn = document.getElementById('tab-btn-products');
+
+            if (tabName === 'leads') {
+                leadsContent.classList.remove('hidden');
+                productsContent.classList.add('hidden');
+                leadsBtn.className = "pb-4 text-base font-bold border-b-2 border-cyan-400 text-cyan-400 flex items-center gap-2 transition";
+                productsBtn.className = "pb-4 text-base font-bold border-b-2 border-transparent text-slate-400 hover:text-white flex items-center gap-2 transition";
+                window.location.hash = 'leads';
+            } else {
+                leadsContent.classList.add('hidden');
+                productsContent.classList.remove('hidden');
+                productsBtn.className = "pb-4 text-base font-bold border-b-2 border-cyan-400 text-cyan-400 flex items-center gap-2 transition";
+                leadsBtn.className = "pb-4 text-base font-bold border-b-2 border-transparent text-slate-400 hover:text-white flex items-center gap-2 transition";
+                window.location.hash = 'products';
+            }
+        }
+
+        // Модалка добавления
+        function toggleAddModal(show) {
+            const modal = document.getElementById('add-modal');
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // Управление модалкой редактирования
+        function toggleEditModal(show) {
+            const modal = document.getElementById('edit-modal');
+            if (show) {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            } else {
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+        }
+
+        // Открытие модалки редактирования и заполнение полей данными
+        function openEditModal(product) {
+            document.getElementById('edit-id').value = product.id;
+            document.getElementById('edit-name').value = product.name;
+            document.getElementById('edit-price').value = product.price;
+            document.getElementById('edit-stock').value = product.stock;
+            document.getElementById('edit-ozon_url').value = product.ozon_url;
+            document.getElementById('edit-images_urls').value = product.images;
+            document.getElementById('edit-avail').checked = product.is_available;
+
+            toggleEditModal(true);
+        }
+
+        // Быстрое сохранение изменений (AJAX)
+        async function saveQuickChanges(productId) {
+            const price = document.getElementById(`price-${productId}`).value;
+            const stock = document.getElementById(`stock-${productId}`).value;
+            const is_available = document.getElementById(`avail-${productId}`).checked;
+
+            try {
+                const response = await fetch('/admin/products/update-quick', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: productId, price, stock, is_available })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    // Визуальный эффект успешного сохранения (подсветка строки зеленым)
+                    const row = document.getElementById(`row-${productId}`);
+                    row.classList.add('bg-emerald-500/10');
+                    setTimeout(() => row.classList.remove('bg-emerald-500/10'), 1000);
+                    
+                    // Обновим текст у чекбокса
+                    const label = row.querySelector('label span');
+                    label.innerText = is_available ? 'В наличии' : 'Нет в наличии';
+                    if (is_available) {
+                        label.className = "ml-3 text-xs font-semibold text-cyan-400";
+                    } else {
+                        label.className = "ml-3 text-xs font-semibold text-slate-400";
+                    }
+                } else {
+                    alert('Ошибка сохранения: ' + result.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Не удалось сохранить изменения.');
+            }
+        }
+
+        // Автоматически открываем вкладку из хэша URL при загрузке
+        window.addEventListener('DOMContentLoaded', () => {
+            if (window.location.hash === '#products') {
+                switchTab('products');
+            } else {
+                switchTab('leads');
+            }
+        });
+    </script>
 </body>
 </html>

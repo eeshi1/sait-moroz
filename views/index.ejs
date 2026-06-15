@@ -1,23 +1,19 @@
 <!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Мороз Плей | Магазин трендовых игрушек и гаджетов</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@400;700&family=Inter:wght@400;600;800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        body { font-family: 'Inter', sans-serif; }
-        .brand-font { font-family: 'Comfortaa', cursive; }
-        /* Анимация левитации для игрушек */
-        @keyframes float {
-            0%, 100% { transform: translateY(0px) rotate(0deg); }
-            50% { transform: translateY(-15px) rotate(3deg); }
-        }
-        .floating-toy { animation: float 4s ease-in-out infinite; }
-    </style>
-</head>
+<html lang="ru" class="scroll-smooth">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Мороз Плей | Магазин трендовых игрушек</title>
+        
+        <!-- ДОБАВЬТЕ ЭТИ СТРОКИ, ЕСЛИ ИХ НЕТ: -->
+        <script src="https://cdn.tailwindcss.com"></script>
+        <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@700&family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+            body { font-family: 'Inter', sans-serif; }
+            .brand-font { font-family: 'Comfortaa', cursive; }
+        </style>
+    </head>
 <body class="bg-slate-900 text-white flex flex-col min-h-screen overflow-x-hidden">
 
     <!-- Эффект легкого снега на фоне -->
@@ -26,27 +22,25 @@
     <!-- Навигация -->
     <nav class="sticky top-0 z-50 backdrop-blur-md bg-slate-900/80 border-b border-slate-800 px-6 py-4">
         <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <a href="/" class="brand-font text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent flex items-center gap-2">
-                <i class="fa-solid fa-snowflake animate-spin text-cyan-400" style="animation-duration: 10s;"></i> Мороз Плей
+            <a href="#hero" class="brand-font text-2xl font-bold bg-gradient-to-r from-cyan-400 via-blue-400 to-indigo-400 bg-clip-text text-transparent flex items-center gap-2">
+                <i class="fa-solid fa-snowflake text-cyan-400"></i> Мороз Плей
             </a>
             <div class="flex items-center space-x-8 font-semibold text-slate-300">
-                <a href="/" class="text-cyan-400 transition">Главная</a>
-                <a href="/services" class="hover:text-white transition">Каталог товаров</a>
-                <a href="/contacts" class="hover:text-white transition">Сотрудничество</a>
-                <a href="/admin" class="bg-gradient-to-r from-cyan-500 to-blue-600 text-white px-5 py-2 rounded-full text-sm hover:from-cyan-400 hover:to-blue-500 transition shadow-lg shadow-cyan-500/20">
+                <a href="#hero" class="hover:text-cyan-400 transition">Главная</a>
+                <a href="#catalog" class="hover:text-cyan-400 transition">Каталог товаров</a>
+                <a href="#cooperation" class="hover:text-cyan-400 transition">Сотрудничество</a>
+                <a href="/admin" class="bg-slate-800 text-white px-4 py-2 rounded-full text-sm hover:bg-slate-700 transition">
                     <i class="fa-solid fa-user-gear mr-1.5"></i> Войти
                 </a>
             </div>
         </div>
     </nav>
 
-    <!-- Главный баннер (Hero Section) -->
-    <header class="relative py-20 lg:py-32 px-6 overflow-hidden">
-        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
-            
-            <!-- Левая часть: Текст -->
-            <div class="lg:col-span-7 text-left space-y-6 relative z-10">
-                <span class="inline-flex items-center gap-1.5 py-1.5 px-3 rounded-full text-xs font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
+    <!-- 1. ГЛАВНЫЙ ЭКРАН (HERO SECTION) -->
+    <header id="hero" class="relative pt-8 pb-20 lg:pt-12 lg:pb-32 px-6 overflow-hidden">
+        <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div class="lg:col-span-7 text-left space-y-5 relative z-10">
+                <span class="inline-flex items-center gap-1.5 py-1 px-2.5 rounded-full text-[11px] font-bold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20">
                     <i class="fa-solid fa-fire-flame-curved text-orange-400"></i> ХИТЫ ПРОДАЖ НА OZON 2026
                 </span>
                 <h1 class="brand-font text-5xl lg:text-7xl font-bold tracking-tight leading-tight">
@@ -54,94 +48,215 @@
                     <span class="bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">Крутых Игрушек</span> <br>
                     и Трендов!
                 </h1>
-                <p class="text-slate-400 text-lg max-w-xl leading-relaxed">
+                <p class="text-slate-400 text-base max-w-xl leading-relaxed">
                     Добро пожаловать в официальный магазин бренда <strong class="text-white">Мороз Плей</strong>. Мы находим самые хайповые антистрессы, милые мягкие игрушки и гаджеты, которые обожают дети и взрослые!
                 </p>
-                
-                <!-- Кнопки действия -->
-                <div class="flex flex-col sm:flex-row gap-4 pt-4">
-                    <a href="https://www.ozon.ru/seller/moroz-pley/" target="_blank" class="bg-[#005bff] hover:bg-[#004ecc] text-white font-extrabold px-8 py-4 rounded-2xl transition shadow-lg shadow-blue-500/30 flex items-center justify-center gap-3 text-lg">
+                <div class="flex flex-col sm:flex-row gap-4 pt-2">
+                    <a href="https://www.ozon.ru/seller/moroz-pley/" target="_blank" class="bg-[#005bff] hover:bg-[#004ecc] text-white font-extrabold px-6 py-3.5 rounded-xl transition shadow-lg shadow-blue-500/30 flex items-center justify-center gap-3 text-base">
                         <i class="fa-solid fa-bag-shopping"></i> Купить на OZON
                     </a>
-                    <a href="/services" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold px-8 py-4 rounded-2xl transition flex items-center justify-center gap-2">
-                        Открыть наш каталог <i class="fa-solid fa-arrow-right"></i>
+                    <a href="#catalog" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold px-6 py-3.5 rounded-xl transition flex items-center justify-center gap-2 text-base">
+                        Смотреть каталог <i class="fa-solid fa-arrow-down"></i>
                     </a>
                 </div>
             </div>
-
-            <!-- Правая часть: Креативный 3D-коллаж игрушек -->
             <div class="lg:col-span-5 flex justify-center relative">
-                <!-- Светящийся неоновый круг сзади -->
                 <div class="absolute w-72 h-72 bg-cyan-500/20 rounded-full blur-3xl top-10"></div>
-                
                 <div class="relative w-80 h-80 flex items-center justify-center">
-                    <!-- Изображение Стича (левитирует) -->
-                    <img src="https://i.ibb.co/zH6mCgN/stitch.png" alt="Стич" class="floating-toy w-64 h-64 object-contain drop-shadow-[0_15px_15px_rgba(6,182,212,0.4)]">
-                    
-                    <!-- Декоративные элементы вокруг -->
-                    <div class="absolute -top-4 -left-4 bg-slate-800/90 border border-slate-700 p-3 rounded-2xl shadow-lg flex items-center gap-2 text-xs font-bold text-cyan-400">
+                    <img src="https://i.ibb.co/zH6mCgN/stitch.png" alt="Стич" class="floating-toy w-60 h-64 object-contain drop-shadow-[0_15px_15px_rgba(6,182,212,0.4)]">
+                    <div class="absolute -top-2 -left-2 bg-slate-800/90 border border-slate-700 p-2.5 rounded-xl shadow-lg flex items-center gap-2 text-[11px] font-bold text-cyan-400">
                         <i class="fa-solid fa-star text-yellow-400"></i> Хит продаж
-                    </div>
-                    <div class="absolute -bottom-4 -right-4 bg-slate-800/90 border border-slate-700 p-3 rounded-2xl shadow-lg flex items-center gap-2 text-xs font-bold text-purple-400">
-                        <i class="fa-solid fa-bolt text-yellow-400"></i> Новинка 2026
                     </div>
                 </div>
             </div>
-
         </div>
     </header>
 
-    <!-- Секция Живой статистики с Ozon (Реальные цифры со скриншота!) -->
+    <!-- СТАТИСТИКА -->
     <section class="py-12 bg-slate-950/60 border-y border-slate-800/50">
         <div class="max-w-6xl mx-auto px-6 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
             <div class="space-y-2">
                 <div class="text-4xl font-extrabold text-cyan-400 flex items-center justify-center gap-2">
                     4.8 <i class="fa-solid fa-star text-yellow-400 text-2xl"></i>
                 </div>
-                <p class="text-slate-400 text-sm font-semibold uppercase tracking-wider">Средняя оценка покупателей</p>
+                <p class="text-slate-400 text-sm font-semibold uppercase tracking-wider">Оценка на Ozon</p>
             </div>
             <div class="space-y-2 border-y md:border-y-0 md:border-x border-slate-800 py-6 md:py-0">
                 <div class="text-4xl font-extrabold text-white">457+</div>
-                <p class="text-slate-400 text-sm font-semibold uppercase tracking-wider">Честных отзывов в магазине</p>
+                <p class="text-slate-400 text-sm font-semibold uppercase tracking-wider">Отзывов покупателей</p>
             </div>
             <div class="space-y-2">
                 <div class="text-4xl font-extrabold text-emerald-400">1 984+</div>
-                <p class="text-slate-400 text-sm font-semibold uppercase tracking-wider">Успешных заказов доставлено</p>
+                <p class="text-slate-400 text-sm font-semibold uppercase tracking-wider">Заказов доставлено</p>
             </div>
         </div>
     </section>
 
-    <!-- Секция трендовых категорий -->
-    <section class="py-20 px-6 max-w-7xl mx-auto w-full">
+    <!-- 2. КАТАЛОГ ТОВАРОВ (SECTION CATALOG) -->
+    <section id="catalog" class="py-20 px-6 max-w-7xl mx-auto w-full scroll-mt-20">
         <div class="text-center mb-16">
-            <h2 class="brand-font text-3xl lg:text-4xl font-bold text-white mb-4">Что у нас есть интересного?</h2>
-            <p class="text-slate-400 max-w-md mx-auto">Самые популярные категории товаров, которые разлетаются быстрее всего!</p>
+            <span class="text-cyan-400 font-bold tracking-wider uppercase text-xs">В наличии на складе</span>
+            <h2 class="brand-font text-4xl font-bold text-white mt-2 mb-4">Каталог товаров</h2>
+            <p class="text-slate-400 max-w-md mx-auto">Листайте фотографии товаров. Нажмите «Показать еще» для загрузки остальных новинок!</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <!-- Категория 1 -->
-            <div class="bg-slate-800/40 p-8 rounded-3xl border border-slate-800 hover:border-cyan-500/30 transition duration-300 group">
-                <div class="w-12 h-12 rounded-2xl bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition">
-                    <i class="fa-solid fa-face-smile"></i>
+        <!-- Сетка товаров -->
+        <div id="products-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <% services.forEach((product) => { 
+                const rawImages = product.images || product.image || '';
+                // Фильтруем пустые элементы, если строка оканчивается на ";"
+                const imagesArray = rawImages.split(';').map(url => url.trim()).filter(url => url !== '');
+                // Проверяем наличие товара на складе и статус доступности
+                const isOutOfStock = !product.is_available || product.stock <= 0;
+            %>
+                <div class="product-card bg-slate-800/40 rounded-3xl border border-slate-800 overflow-hidden hover:border-cyan-500/30 transition duration-300 flex flex-col justify-between p-5 <%= isOutOfStock ? 'opacity-75' : '' %>" data-id="<%= product.id %>">
+                    
+                    <!-- Слайдер картинок (УБРАН PADDING И УВЕЛИЧЕНА ВЫСОТА ДО h-60 ДЛЯ КРАСИВОГО ЗАПОЛНЕНИЯ) -->
+                    <div class="bg-slate-950/50 rounded-2xl mb-4 relative h-60 group/slider overflow-hidden">
+                        <!-- Плашка "Нет в наличии" -->
+                        <% if (isOutOfStock) { %>
+                            <div class="absolute inset-0 bg-slate-950/80 z-30 flex items-center justify-center">
+                                <span class="bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">Нет в наличии</span>
+                            </div>
+                        <% } %>
+
+                        <div class="w-full h-full relative">
+                            <% imagesArray.forEach((imgUrl, imgIndex) => { %>
+                                <img src="<%= imgUrl %>" 
+                                     id="img-<%= product.id %>-<%= imgIndex %>" 
+                                     class="product-image-<%= product.id %> w-full h-full object-cover absolute transition-opacity duration-300 <%= imgIndex === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0' %>"
+                                     alt="<%= product.name %>">
+                            <% }) %>
+                        </div>
+                        
+                        <!-- Стрелочки показываем только если картинок больше 1 и товар есть в наличии -->
+                        <% if (imagesArray.length > 1 && !isOutOfStock) { %>
+                            <button onclick="prevSlide(<%= product.id %>, <%= imagesArray.length %>)" class="absolute left-2 top-1/2 -translate-y-1/2 bg-slate-900/80 hover:bg-cyan-500 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition z-20">
+                                <i class="fa-solid fa-chevron-left text-xs"></i>
+                            </button>
+                            <button onclick="nextSlide(<%= product.id %>, <%= imagesArray.length %>)" class="absolute right-2 top-1/2 -translate-y-1/2 bg-slate-900/80 hover:bg-cyan-500 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition z-20">
+                                <i class="fa-solid fa-chevron-right text-xs"></i>
+                            </button>
+                        <% } %>
+
+                        <!-- Точки слайдера -->
+                        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                            <% if (imagesArray.length > 1 && !isOutOfStock) { %>
+                                <% imagesArray.forEach((_, imgIndex) => { %>
+                                    <span id="dot-<%= product.id %>-<%= imgIndex %>" 
+                                          class="dot-<%= product.id %> w-2 h-2 rounded-full transition-all duration-300 <%= imgIndex === 0 ? 'bg-cyan-400 scale-125' : 'bg-slate-600' %>">
+                                    </span>
+                                <% }) %>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Описание -->
+                    <div class="space-y-2 flex-grow flex flex-col justify-between">
+                        <h3 class="text-base font-bold text-slate-100 leading-snug min-h-[48px]"><%= product.name %></h3>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
+                            <div>
+                                <span class="text-[10px] text-slate-500 uppercase font-bold tracking-wider block">Цена на Ozon</span>
+                                <span class="text-xl font-extrabold text-cyan-400"><%= product.price %></span>
+                            </div>
+                            <% if (!isOutOfStock) { %>
+                                <span class="text-xs text-emerald-400 font-bold"><i class="fa-solid fa-truck-fast"></i> Завтра</span>
+                            <% } else { %>
+                                <span class="text-xs text-slate-500 font-bold">Ожидается</span>
+                            <% } %>
+                        </div>
+                    </div>
+
+                    <!-- Кнопка действия -->
+                    <% if (!isOutOfStock) { %>
+                        <a href="<%= product.ozon_url %>" target="_blank" class="mt-4 w-full bg-[#005bff] hover:bg-[#004ecc] text-white text-sm py-3 rounded-xl font-bold transition flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-bag-shopping"></i> Купить на Ozon
+                        </a>
+                    <% } else { %>
+                        <button disabled class="mt-4 w-full bg-slate-800 text-slate-500 text-sm py-3 rounded-xl font-bold cursor-not-allowed flex items-center justify-center gap-2">
+                            Нет в наличии
+                        </button>
+                    <% } %>
                 </div>
-                <h3 class="brand-font text-xl font-bold text-white mb-3">Мягкие Игрушки</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Милейшие плюшевые Стичи, Человеки-пауки и другие персонажи из любимых мультфильмов.</p>
+            <% }) %>
+        </div>
+
+        <!-- Кнопка «Показать еще» -->
+        <div class="flex justify-center mt-12">
+            <button id="load-more-btn" onclick="loadMoreProducts()" class="bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold px-8 py-4 rounded-2xl transition flex items-center gap-2">
+                Показать еще <i class="fa-solid fa-spinner animate-spin hidden" id="btn-spinner"></i>
+            </button>
+        </div>
+    </section>
+
+    <!-- 3. СОТРУДНИЧЕСТВО (SECTION COOPERATION) -->
+    <section id="cooperation" class="py-20 bg-slate-950/40 border-t border-slate-800/60 scroll-mt-20">
+        <div class="max-w-6xl mx-auto px-6">
+            <div class="text-center mb-16">
+                <span class="text-cyan-400 font-bold tracking-wider uppercase text-xs">Давайте расти вместе</span>
+                <h2 class="brand-font text-4xl font-bold text-white mt-2 mb-4">Сотрудничество</h2>
+                <p class="text-slate-400 max-w-md mx-auto">Свяжитесь с нами напрямую или оставьте заявку через форму ниже.</p>
             </div>
-            <!-- Категория 2 -->
-            <div class="bg-slate-800/40 p-8 rounded-3xl border border-slate-800 hover:border-blue-500/30 transition duration-300 group">
-                <div class="w-12 h-12 rounded-2xl bg-blue-500/10 text-blue-400 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition">
-                    <i class="fa-solid fa-gamepad"></i>
+
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                <!-- Контакты -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="bg-slate-900/80 p-8 rounded-3xl border border-slate-800 shadow-xl">
+                        <h3 class="brand-font text-xl font-bold text-white mb-6">Контакты Мороз Плей</h3>
+                        <div class="space-y-6">
+                            <a href="https://t.me/moroskq" target="_blank" class="pulse-tg flex items-center gap-4 bg-cyan-500/10 border border-cyan-500/20 p-4 rounded-2xl hover:bg-cyan-500/20 transition group">
+                                <div class="text-cyan-400 text-2xl"><i class="fa-brands fa-telegram"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-white group-hover:text-cyan-300 transition">Написать в Telegram</h4>
+                                    <p class="text-cyan-400 text-sm font-semibold mt-0.5">@moroskq</p>
+                                </div>
+                            </a>
+                            <div class="flex items-start gap-4 p-2">
+                                <div class="text-blue-400 text-xl mt-1"><i class="fa-solid fa-phone"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-white">Телефон</h4>
+                                    <p class="text-slate-400 text-sm mt-0.5">+7 (920) 985-18-08</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start gap-4 p-2">
+                                <div class="text-purple-400 text-xl mt-1"><i class="fa-solid fa-clock"></i></div>
+                                <div>
+                                    <h4 class="font-bold text-white">Время работы</h4>
+                                    <p class="text-slate-400 text-sm mt-0.5">Каждый день с 10:00 до 22:00 (МСК)</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <h3 class="brand-font text-xl font-bold text-white mb-3">Антистрессы и кликеры</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Трендовые брелки-клавиатуры с сочной RGB-подсветкой и приятным кликом для снятия напряжения.</p>
-            </div>
-            <!-- Категория 3 -->
-            <div class="bg-slate-800/40 p-8 rounded-3xl border border-slate-800 hover:border-purple-500/30 transition duration-300 group">
-                <div class="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-2xl mb-6 group-hover:scale-110 transition">
-                    <i class="fa-solid fa-wind"></i>
+
+                <!-- Форма отправки (AJAX) -->
+                <div class="lg:col-span-7 bg-slate-900/80 p-8 rounded-3xl border border-slate-800 shadow-xl">
+                    <h3 class="brand-font text-xl font-bold text-white mb-6">Оставить предложение</h3>
+                    
+                    <!-- Сообщение об успехе -->
+                    <div id="form-success" class="hidden bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-4 py-3 rounded-2xl mb-6 font-semibold flex items-center gap-2 text-sm">
+                        <i class="fa-solid fa-circle-check text-emerald-400 text-lg"></i> 
+                        Ваше предложение успешно записано в базу данных!
+                    </div>
+
+                    <form id="lead-form" onsubmit="submitForm(event)" class="space-y-5">
+                        <div>
+                            <label class="block text-slate-300 font-semibold mb-1.5 text-sm">Ваше имя / Компания</label>
+                            <input type="text" id="form-name" required placeholder="Иван" class="w-full bg-slate-950/50 border border-slate-800 p-3 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/10 transition">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 font-semibold mb-1.5 text-sm">Телефон для связи</label>
+                            <input type="text" id="phone-input" required placeholder="+7 (___) ___-__-__" class="w-full bg-slate-950/50 border border-slate-800 p-3 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/10 transition">
+                        </div>
+                        <div>
+                            <label class="block text-slate-300 font-semibold mb-1.5 text-sm">Суть предложения</label>
+                            <textarea id="form-message" placeholder="Хотим предложить вам партию мягких игрушек..." rows="4" class="w-full bg-slate-950/50 border border-slate-800 p-3 rounded-xl text-white focus:outline-none focus:border-cyan-500 focus:ring-2 focus:ring-cyan-500/10 transition"></textarea>
+                        </div>
+                        <button type="submit" class="w-full bg-gradient-to-r from-cyan-500 to-blue-600 text-white py-3.5 rounded-xl font-bold hover:from-cyan-400 hover:to-blue-500 transition shadow-lg shadow-cyan-500/20 flex items-center justify-center gap-2">
+                            <i class="fa-solid fa-paper-plane"></i> Отправить предложение
+                        </button>
+                    </form>
                 </div>
-                <h3 class="brand-font text-xl font-bold text-white mb-3">Умные Гаджеты</h3>
-                <p class="text-slate-400 text-sm leading-relaxed">Портативные вентиляторы 3-в-1, которые спасут в жару и зарядят ваш телефон в любой момент.</p>
             </div>
         </div>
     </section>
@@ -151,5 +266,200 @@
         <p>© 2026 Магазин «Мороз Плей». Все права защищены. Официальный партнер маркетплейса OZON.</p>
     </footer>
 
+    <!-- СКРИПТЫ -->
+    <script>
+        const sliderStates = {};
+
+        function showSlide(productId, slideIndex, totalSlides) {
+            if (totalSlides <= 1) return; // Если картинка одна, слайдер не нужен
+            if (slideIndex >= totalSlides) slideIndex = 0;
+            if (slideIndex < 0) slideIndex = totalSlides - 1;
+            sliderStates[productId] = slideIndex;
+
+            const images = document.querySelectorAll(`.product-image-${productId}`);
+            images.forEach((img, idx) => {
+                if (idx === slideIndex) {
+                    img.classList.remove('opacity-0', 'z-0');
+                    img.classList.add('opacity-100', 'z-10');
+                } else {
+                    img.classList.remove('opacity-100', 'z-10');
+                    img.classList.add('opacity-0', 'z-0');
+                }
+            });
+
+            const dots = document.querySelectorAll(`.dot-${productId}`);
+            dots.forEach((dot, idx) => {
+                if (idx === slideIndex) {
+                    dot.classList.remove('bg-slate-600');
+                    dot.classList.add('bg-cyan-400', 'scale-125');
+                } else {
+                    dot.classList.remove('bg-cyan-400', 'scale-125');
+                    dot.classList.add('bg-slate-600');
+                }
+            });
+        }
+
+        function nextSlide(productId, totalSlides) {
+            const currentIndex = sliderStates[productId] || 0;
+            showSlide(productId, currentIndex + 1, totalSlides);
+        }
+
+        function prevSlide(productId, totalSlides) {
+            const currentIndex = sliderStates[productId] || 0;
+            showSlide(productId, currentIndex - 1, totalSlides);
+        }
+
+        let currentPage = 1;
+        const limit = 4;
+        let isLoading = false;
+
+        async function loadMoreProducts() {
+            if (isLoading) return;
+            isLoading = true;
+            
+            const btn = document.getElementById('load-more-btn');
+            const spinner = document.getElementById('btn-spinner');
+            spinner.classList.remove('hidden');
+            
+            currentPage++;
+
+            try {
+                const response = await fetch(`/api/products?page=${currentPage}&limit=${limit}`);
+                const products = await response.json();
+
+                if (products.length < limit) {
+                    btn.classList.add('hidden');
+                }
+
+                if (products.length > 0) {
+                    const grid = document.getElementById('products-grid');
+                    products.forEach(product => {
+                        const cardHtml = createProductCardHtml(product);
+                        grid.insertAdjacentHTML('beforeend', cardHtml);
+                    });
+                }
+            } catch (err) {
+                console.error("Ошибка загрузки товаров:", err);
+            } finally {
+                isLoading = false;
+                spinner.classList.add('hidden');
+            }
+        }
+
+        // КРАСИВЫЙ ШАБЛОН ДЛЯ ПОДГРУЖАЕМЫХ ТОВАРОВ (БЕЗ ОТСТУПОВ И С object-cover)
+        function createProductCardHtml(product) {
+            const rawImages = product.images || product.image || '';
+            const imagesArray = rawImages.split(';').map(url => url.trim()).filter(url => url !== '');
+            const isOutOfStock = !product.is_available || product.stock <= 0;
+
+            let imagesHtml = '';
+            imagesArray.forEach((imgUrl, imgIndex) => {
+                imagesHtml += `
+                    <img src="${imgUrl}" 
+                         id="img-${product.id}-${imgIndex}" 
+                         class="product-image-${product.id} w-full h-full object-cover absolute transition-opacity duration-300 ${imgIndex === 0 ? 'opacity-100 z-10' : 'opacity-0 z-0'}"
+                         alt="${product.name}">
+                `;
+            });
+
+            let dotsHtml = '';
+            let navigationButtonsHtml = '';
+            let outOfStockBadge = '';
+            let actionButton = '';
+            let deliveryBadge = `<span class="text-xs text-emerald-400 font-bold"><i class="fa-solid fa-truck-fast"></i> Завтра</span>`;
+
+            if (isOutOfStock) {
+                outOfStockBadge = `
+                    <div class="absolute inset-0 bg-slate-950/80 z-30 flex items-center justify-center">
+                        <span class="bg-red-500/20 text-red-400 border border-red-500/30 text-xs font-bold px-3 py-1.5 rounded-full uppercase tracking-wider">Нет в наличии</span>
+                    </div>
+                `;
+                deliveryBadge = `<span class="text-xs text-slate-500 font-bold">Ожидается</span>`;
+                actionButton = `
+                    <button disabled class="mt-4 w-full bg-slate-800 text-slate-500 text-sm py-3 rounded-xl font-bold cursor-not-allowed flex items-center justify-center gap-2">
+                        Нет в наличии
+                    </button>
+                `;
+            } else {
+                actionButton = `
+                    <a href="${product.ozon_url}" target="_blank" class="mt-4 w-full bg-[#005bff] hover:bg-[#004ecc] text-white text-sm py-3 rounded-xl font-bold transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-bag-shopping"></i> Купить на Ozon
+                    </a>
+                `;
+
+                if (imagesArray.length > 1) {
+                    imagesArray.forEach((_, imgIndex) => {
+                        dotsHtml += `
+                            <span id="dot-${product.id}-${imgIndex}" 
+                                  class="dot-${product.id} w-2 h-2 rounded-full transition-all duration-300 ${imgIndex === 0 ? 'bg-cyan-400 scale-125' : 'bg-slate-600'}">
+                            </span>
+                        `;
+                    });
+
+                    navigationButtonsHtml = `
+                        <button onclick="prevSlide(${product.id}, ${imagesArray.length})" class="absolute left-2 top-1/2 -translate-y-1/2 bg-slate-900/80 hover:bg-cyan-500 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition z-20">
+                            <i class="fa-solid fa-chevron-left text-xs"></i>
+                        </button>
+                        <button onclick="nextSlide(${product.id}, ${imagesArray.length})" class="absolute right-2 top-1/2 -translate-y-1/2 bg-slate-900/80 hover:bg-cyan-500 text-white w-8 h-8 rounded-full flex items-center justify-center opacity-0 group-hover/slider:opacity-100 transition z-20">
+                            <i class="fa-solid fa-chevron-right text-xs"></i>
+                        </button>
+                    `;
+                }
+            }
+
+            return `
+                <div class="product-card bg-slate-800/40 rounded-3xl border border-slate-800 overflow-hidden hover:border-cyan-500/30 transition duration-300 flex flex-col justify-between p-5 ${isOutOfStock ? 'opacity-75' : ''}" data-id="${product.id}">
+                    <div class="bg-slate-950/50 rounded-2xl mb-4 relative h-60 group/slider overflow-hidden">
+                        ${outOfStockBadge}
+                        <div class="w-full h-full relative">
+                            ${imagesHtml}
+                        </div>
+                        ${navigationButtonsHtml}
+                        <div class="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1.5 z-20">
+                            ${dotsHtml}
+                        </div>
+                    </div>
+                    <div class="space-y-2 flex-grow flex flex-col justify-between">
+                        <h3 class="text-base font-bold text-slate-100 leading-snug min-h-[48px]">${product.name}</h3>
+                        <div class="flex items-center justify-between pt-4 border-t border-slate-800/60">
+                            <div>
+                                <span class="text-[10px] text-slate-500 uppercase font-bold tracking-wider block">Цена на Ozon</span>
+                                <span class="text-xl font-extrabold text-cyan-400">${product.price}</span>
+                            </div>
+                            ${deliveryBadge}
+                        </div>
+                    </div>
+                    ${actionButton}
+                </div>
+            `;
+        }
+
+        async function submitForm(event) {
+            event.preventDefault();
+            const name = document.getElementById('form-name').value;
+            const phone = document.getElementById('phone-input').value;
+            const message = document.getElementById('form-message').value;
+
+            try {
+                const response = await fetch('/api/leads', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ name, phone, message })
+                });
+                const result = await response.json();
+                if (result.success) {
+                    document.getElementById('form-success').classList.remove('hidden');
+                    document.getElementById('lead-form').reset();
+                } else {
+                    alert('Ошибка при отправке: ' + result.error);
+                }
+            } catch (err) {
+                console.error(err);
+                alert('Не удалось отправить предложение.');
+            }
+        }
+
+        IMask(document.getElementById('phone-input'), { mask: '+7 (000) 000-00-00' });
+    </script>
 </body>
 </html>
