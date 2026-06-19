@@ -23,7 +23,9 @@ async function initDB() {
                 name NVARCHAR(255) NOT NULL,
                 price NVARCHAR(255) NOT NULL,
                 images NVARCHAR(MAX) NOT NULL,
-                ozon_url NVARCHAR(MAX) NOT NULL
+                ozon_url NVARCHAR(MAX) NOT NULL,
+                stock INT DEFAULT 0,
+                is_available BIT DEFAULT 1
             )
         `);
 
@@ -51,25 +53,25 @@ async function initDB() {
 
         console.log("Заполняем базу товарами «Мороз Плей»...");
         await pool.request().query(`
-            INSERT INTO services (name, price, images, ozon_url) VALUES 
+            INSERT INTO services (name, price, images, ozon_url, stock, is_available) VALUES 
             (N'Портативный вентилятор Холод (белый)', N'475 ₽', 
-             N'https://ibb.co', 
-             N'https://ozon.ru'),
+             N'https://i.ibb.co/zH6mCgN/stitch.png', 
+             N'https://ozon.ru', 10, 1),
 
             (N'Мягкая игрушка-сюрприз Стич (15 см)', N'255 ₽', 
-             N'https://ibb.co', 
-             N'https://ozon.ru'),
+             N'https://i.ibb.co/zH6mCgN/stitch.png', 
+             N'https://ozon.ru', 25, 1),
 
             (N'Мягкая игрушка-сюрприз Человек-Паук', N'444 ₽', 
-             N'https://ibb.co', 
-             N'https://ozon.ru'),
+             N'https://i.ibb.co/zH6mCgN/stitch.png', 
+             N'https://ozon.ru', 15, 1),
 
             (N'Антистресс-брелок клавиатура RGB', N'165 ₽', 
-             N'https://ibb.co', 
-             N'https://ozon.ru')
+             N'https://i.ibb.co/zH6mCgN/stitch.png', 
+             N'https://ozon.ru', 30, 1)
         `);
 
-        console.log("База данных успешно обновлена! Все таблицы созданы.");
+                console.log("База данных успешно обновлена! Все таблицы созданы.");
 
     } catch (err) {
         console.error("Ошибка при работе с MS SQL:", err);

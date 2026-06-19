@@ -1,16 +1,23 @@
 const express = require('express');
-const sql = require('mssql/msnodesqlv8'); // Используем локальный драйвер Windows
+const sql = require('mssql/msnodesqlv8');
 const path = require('path');
 const session = require('express-session');
 const crypto = require('crypto');
 const multer = require('multer');
+const fs = require('fs');
 
 const app = express();
+
+// Убедимся, что папка для загрузок существует
+const uploadsDir = path.join(__dirname, 'public/uploads');
+if (!fs.existsSync(uploadsDir)) {
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
 
 // Настройка загрузки файлов
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'public/uploads/');
+        cb(null, uploadsDir);
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -19,7 +26,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Прямая строка подключения к локальному инстансу (обходит сетевые блокировки портов)
+// Подключение к MS SQL Server
 const dbConfig = {
     connectionString: 'Driver={ODBC Driver 17 for SQL Server};Server=localhost\\SQLEXPRESS;Database=vorobyev_db;Trusted_Connection=yes;',
 };
@@ -27,28 +34,32 @@ const dbConfig = {
 const poolPromise = new sql.ConnectionPool(dbConfig)
     .connect()
     .then(pool => {
-        console.log('Успешное подключение к MS SQL Server!');
+        console.log('✅ Успешное подключение к MS SQL Server!');
         return pool;
     })
     .catch(err => {
-        console.error('Ошибка подключения MS SQL:', err);
+        console.error('❌ Ошибка подключения MS SQL:', err.message);
         process.exit(1);
     });
 
 app.use(express.urlencoded({ extended: true }));
-app.use(express.json()); 
+app.use(express.json());
 
-// Раздача статических файлов (загруженные картинки бэкенда)
+// Раздача загруженных файлов
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
-// Раздача собранного React-приложения (production)
-app.use(express.static(path.join(__dirname, '../frontend/dist')));
+
+// Раздача собранного React-приложения (в production)
+const distPath = path.join(__dirname, '../frontend/dist');
+if (fs.existsSync(distPath)) {
+    app.use(express.static(distPath));
+}
 
 app.use(session({
     secret: 'my-super-secret-key-123',
     resave: false,
     saveUninitialized: false,
     cookie: { 
-        maxAge: 1000 * 60 * 60 * 2, // 2 часа
+        maxAge: 1000 * 60 * 60 * 2,
         secure: false 
     }
 }));
@@ -57,7 +68,7 @@ function hashPassword(password) {
     return crypto.createHash('sha256').update(password).digest('hex');
 }
 
-// Middleware для проверки авторизации через API
+// Middleware для проверки авторизации
 function checkAuthAPI(req, res, next) {
     if (req.session.userId) {
         next();
@@ -118,10 +129,10 @@ app.post('/api/auth/logout', (req, res) => {
     });
 });
 
-// --- API ТОВАРОВ И ЗАЯВОК ---
+// --- API ТОВАРОВ ---
 app.get('/api/products', async (req, res) => {
     const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 4;
+    const limit = parseInt(req.query.limit) || 8;
     const offset = (page - 1) * limit;
     try {
         const pool = await poolPromise;
@@ -140,6 +151,7 @@ app.get('/api/products', async (req, res) => {
     }
 });
 
+// --- API ЗАЯВОК ---
 app.post('/api/leads', async (req, res) => {
     const { name, phone, message } = req.body;
     try {
@@ -155,7 +167,7 @@ app.post('/api/leads', async (req, res) => {
     }
 });
 
-// --- API АДМИНКА (ЗАЩИЩЕННЫЕ) ---
+// --- API АДМИНКИ ---
 app.get('/api/admin/data', checkAuthAPI, async (req, res) => {
     try {
         const pool = await poolPromise;
@@ -170,75 +182,99 @@ app.get('/api/admin/data', checkAuthAPI, async (req, res) => {
     }
 });
 
-// Добавление товара через API
 app.post('/api/admin/products/add', checkAuthAPI, upload.array('images_files', 5), async (req, res) => {
-    const { name, price, ozon_url, stock, is_available, images_urls } = req.body;
+    const { name, price, ozon_url, images_urls } = req.body;
+    console.log('🔧 Добавление товара:', { name, price });
+
     let imagesList = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
     if (images_urls) {
         const urls = images_urls.split(';').map(u => u.trim()).filter(u => u !== '');
         imagesList = [...imagesList, ...urls];
     }
-    const imagesString = imagesList.join(';');
-    const stockVal = parseInt(stock) || 0;
-    const availableVal = is_available === 'true' || is_available === '1' || is_available === 'on' ? 1 : 0;
+    const imagesString = imagesList.join(';') || '';
 
     try {
         const pool = await poolPromise;
         await pool.request()
-            .input('name', sql.NVarChar, name)
-            .input('price', sql.NVarChar, price)
-            .input('ozon_url', sql.NVarChar, ozon_url)
+            .input('name', sql.NVarChar, String(name || ''))
+            .input('price', sql.NVarChar, String(price || ''))
+            .input('ozon_url', sql.NVarChar, String(ozon_url || ''))
             .input('images', sql.NVarChar, imagesString)
-            .input('stock', sql.Int, stockVal)
-            .input('is_available', sql.Bit, availableVal)
             .query(`
-                INSERT INTO services (name, price, ozon_url, images, stock, is_available) 
-                VALUES (@name, @price, @ozon_url, @images, @stock, @is_available)
+                INSERT INTO services (name, price, ozon_url, images)
+                VALUES (@name, @price, @ozon_url, @images)
             `);
+        console.log('✅ Товар добавлен:', name);
         res.json({ success: true });
     } catch (err) {
-        res.status(500).json({ error: "Ошибка добавления товара" });
+        console.error('❌ Полная ошибка SQL при добавлении товара:', err);
+        res.status(500).json({ error: "Ошибка добавления товара: " + err.message });
     }
 });
 
-// Редактирование товара через API
 app.post('/api/admin/products/edit', checkAuthAPI, upload.array('images_files', 5), async (req, res) => {
-    const { id, name, price, ozon_url, stock, is_available, images_urls } = req.body;
-    
+    const { id, name, price, ozon_url, images_urls } = req.body;
+    console.log('🔧 Редактирование товара, body:', JSON.stringify({ id, name, price }));
+
     let imagesList = req.files ? req.files.map(f => `/uploads/${f.filename}`) : [];
     if (images_urls) {
         const urls = images_urls.split(';').map(u => u.trim()).filter(u => u !== '');
         imagesList = [...imagesList, ...urls];
     }
-    const imagesString = imagesList.join(';');
-    const stockVal = parseInt(stock) || 0;
-    const availableVal = is_available === 'true' || is_available === '1' || is_available === 'on' ? 1 : 0;
+    const imagesString = imagesList.join(';') || '';
 
     try {
         const pool = await poolPromise;
         await pool.request()
-            .input('id', sql.Int, parseInt(id))
-            .input('name', sql.NVarChar, name)
-            .input('price', sql.NVarChar, price)
-            .input('ozon_url', sql.NVarChar, ozon_url)
+            .input('id', sql.Int, parseInt(id, 10))
+            .input('name', sql.NVarChar, String(name || ''))
+            .input('price', sql.NVarChar, String(price || ''))
+            .input('ozon_url', sql.NVarChar, String(ozon_url || ''))
             .input('images', sql.NVarChar, imagesString)
-            .input('stock', sql.Int, stockVal)
-            .input('is_available', sql.Bit, availableVal)
             .query(`
-                UPDATE services 
-                SET name = @name, price = @price, ozon_url = @ozon_url, images = @images, stock = @stock, is_available = @is_available
+                UPDATE services
+                SET name = @name,
+                    price = @price,
+                    ozon_url = @ozon_url,
+                    images = @images
                 WHERE id = @id
             `);
+        console.log('✅ Товар обновлён, ID:', id);
         res.json({ success: true });
     } catch (err) {
-        res.status(500).json({ error: "Ошибка редактирования товара" });
+        console.error('❌ Полная ошибка SQL при редактировании товара:', err);
+        res.status(500).json({ error: "Ошибка редактирования товара: " + err.message });
     }
 });
-// Правило для работы роутинга React: перенаправляет все GET-запросы на index.html
-app.get('*any', (req, res) => {
-    res.sendFile(path.join(__dirname, '../frontend/dist/index.html'));
+
+app.delete('/api/admin/products/:id', checkAuthAPI, async (req, res) => {
+    try {
+        const pool = await poolPromise;
+        await pool.request()
+            .input('id', sql.Int, parseInt(req.params.id))
+            .query("DELETE FROM services WHERE id = @id");
+        res.json({ success: true });
+    } catch (err) {
+        res.status(500).json({ error: "Ошибка удаления товара" });
+    }
 });
+
+// SPA fallback: все не-API запросы направляем в React
+app.get(/^\/(?!api\/).*/, (req, res) => {
+    if (fs.existsSync(distPath)) {
+        res.sendFile(path.join(distPath, 'index.html'));
+    } else {
+        res.status(200).json({ 
+            message: 'React SPA сервер. Для разработки запустите: cd frontend && npm run dev',
+            note: 'В production соберите фронтенд: cd frontend && npm run build'
+        });
+    }
+});
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
-    console.log(`Сервер запущен на порту ${PORT}. Админка доступна: http://localhost:3000/admin`);
+    console.log(`🚀 Сервер запущен на порту ${PORT}`);
+    console.log(`   API эндпоинты: http://localhost:${PORT}/api/...`);
+    console.log(`   Админка: http://localhost:${PORT}/admin`);
+    console.log(`   В dev-режиме фронтенд: http://localhost:5173`);
 });
