@@ -1,5 +1,100 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import './App.css';
+
+const MOSCOW_COORDS = { latitude: 55.7558, longitude: 37.6173 };
+
+const WEATHER_CODES_RU = {
+  0: 'Ясно', 1: 'Преим. ясно', 2: 'Облачно', 3: 'Пасмурно',
+  45: 'Туман', 48: 'Изморозь', 51: 'Морось', 53: 'Морось', 55: 'Сильная морось',
+  56: 'Ледяная морось', 57: 'Ледяная морось', 61: 'Небольшой дождь', 63: 'Дождь',
+  65: 'Ливень', 66: 'Ледяной дождь', 67: 'Ледяной ливень', 71: 'Небольшой снег',
+  73: 'Снег', 75: 'Снегопад', 77: 'Снежная крупа', 80: 'Небольшие ливни',
+  81: 'Ливни', 82: 'Сильные ливни', 85: 'Снежные ливни', 86: 'Сильные снежные ливни',
+  95: 'Гроза', 96: 'Гроза с градом', 99: 'Сильная гроза'
+};
+
+const WEATHER_EMOJI = {
+  0: '☀️', 1: '🌤️', 2: '⛅', 3: '☁️', 45: '🌫️', 48: '🌫️',
+  51: '🌦️', 53: '🌦️', 55: '🌧️', 56: '🌧️', 57: '🌧️',
+  61: '🌦️', 63: '🌧️', 65: '🌧️', 66: '🌧️', 67: '🌧️',
+  71: '🌨️', 73: '🌨️', 75: '❄️', 77: '🌨️', 80: '🌦️', 81: '🌧️', 82: '🌧️',
+  85: '🌨️', 86: '❄️', 95: '⛈️', 96: '⛈️', 99: '⛈️'
+};
+
+function WeatherBadge({ fallbackCoords, style }) {
+  const [weather, setWeather] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+  const abortRef = useRef(null);
+
+  const fetchWeather = useCallback(async (coords) => {
+    if (abortRef.current) abortRef.current.abort();
+    const controller = new AbortController();
+    abortRef.current = controller;
+
+    setLoading(true);
+    setError(false);
+    try {
+      const timeoutId = setTimeout(() => controller.abort(), 6000);
+      const url = `https://api.open-meteo.com/v1/forecast?latitude=${coords.latitude}&longitude=${coords.longitude}&current=temperature_2m,weather_code,is_day&timezone=auto`;
+      const res = await fetch(url, { signal: controller.signal });
+      clearTimeout(timeoutId);
+      if (!res.ok) throw new Error('API error');
+      const data = await res.json();
+      const current = data.current || {};
+      setWeather({
+        temp: Math.round(current.temperature_2m),
+        code: current.weather_code,
+        isDay: current.is_day,
+      });
+      setError(false);
+    } catch (e) {
+      if (e.name !== 'AbortError') setError(true);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    let coords = fallbackCoords;
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => fetchWeather({ latitude: pos.coords.latitude, longitude: pos.coords.longitude }),
+        () => fetchWeather(coords),
+        { enableHighAccuracy: false, timeout: 5000, maximumAge: 600000 }
+      );
+    } else {
+      fetchWeather(coords);
+    }
+    return () => { if (abortRef.current) abortRef.current.abort(); };
+  }, [fallbackCoords, fetchWeather]);
+
+  if (error || (!loading && !weather)) return null;
+
+  if (loading) {
+    return (
+      <span style={style} className="weather-badge-loading">
+        <span className="weather-badge-spinner"></span>
+      </span>
+    );
+  }
+
+  const emoji = WEATHER_EMOJI[weather.code] || '🌡️';
+  const desc = WEATHER_CODES_RU[weather.code] || '';
+
+  return (
+    <button
+      type="button"
+      onClick={() => fetchWeather(fallbackCoords)}
+      style={style}
+      title={`${desc} • Нажмите для обновления`}
+      className="weather-badge"
+    >
+      <span>{emoji}</span>
+      <span>{weather.temp > 0 ? '+' : ''}{weather.temp}°C</span>
+    </button>
+  );
+}
 
 function App() {
   // Навигация (SPA роутинг)
@@ -18,6 +113,7 @@ function App() {
   });
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isOrderModalOpen, setIsOrderModalOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Оформление заказа
   const [orderName, setOrderName] = useState('');
@@ -38,11 +134,18 @@ function App() {
   const [newProdPrice, setNewProdPrice] = useState('');
   const [newProdOzon, setNewProdOzon] = useState('');
   const [newProdUrls, setNewProdUrls] = useState('');
-    const [newProdFiles, setNewProdFiles] = useState(null);
+  const [newProdFiles, setNewProdFiles] = useState(null);
+  const [newProdStock, setNewProdStock] = useState(0);
+  const [newProdAvailable, setNewProdAvailable] = useState(true);
   const [editProductId, setEditProductId] = useState(null);    // режим редактирования
   const [deleteConfirmId, setDeleteConfirmId] = useState(null); // подтверждение удаления
-  // ===== НОВЫЙ СТЕЙТ ДЛЯ МОДАЛКИ ДОБАВЛЕНИЯ ТОВАРА =====
+  // ===== СТЕЙТ ДЛЯ МОДАЛКИ ДОБАВЛЕНИЯ ТОВАРА =====
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  // ===== СТЕЙТ ДЛЯ НАСТРОЕК ГЛАВНОГО ЭКРАНА =====
+  const [heroImage, setHeroImage] = useState('https://i.ibb.co/zH6mCgN/stitch.png');
+  const [settingsHeroUrl, setSettingsHeroUrl] = useState('');
+  const [settingsHeroFile, setSettingsHeroFile] = useState(null);
+  const [isSavingSettings, setIsSavingSettings] = useState(false);
   // Отслеживание кнопок «Назад»/«Вперед» в браузере
   useEffect(() => {
     const handleLocationChange = () => setCurrentPath(window.location.pathname);
@@ -69,7 +172,8 @@ function App() {
       const response = await fetch(`/api/products?page=${currentPage}&limit=4`);
       const data = await response.json();
       if (data.error) return;
-      if (data.length < 4) setHasMore(false);
+      // Сбрасываем hasMore корректно: если вернулось меньше 4 — больше нечего грузить
+      setHasMore(data.length === 4);
       if (currentPage === 1) {
         setProducts(data);
       } else {
@@ -85,6 +189,61 @@ function App() {
       setLoading(false);
     }
   };
+
+  // Загрузка настроек главного экрана
+  const loadSettings = async () => {
+    try {
+      const res = await fetch('/api/settings');
+      if (res.ok) {
+        const data = await res.json();
+        if (data.hero_image) {
+          setHeroImage(data.hero_image);
+          setSettingsHeroUrl(data.hero_image);
+        }
+      }
+    } catch (err) {
+      console.error('Ошибка загрузки настроек:', err);
+    }
+  };
+
+  const handleSaveSettings = async (e) => {
+    e.preventDefault();
+    setIsSavingSettings(true);
+    const formData = new FormData();
+    formData.append('hero_image_url', settingsHeroUrl);
+    if (settingsHeroFile) {
+      formData.append('hero_image_file', settingsHeroFile);
+    }
+
+    try {
+      const res = await fetch('/api/admin/settings', {
+        method: 'POST',
+        body: formData
+      });
+      if (res.ok) {
+        const data = await res.json();
+        alert('✅ Изображение главного экрана обновлено!');
+        if (data.hero_image) {
+          setHeroImage(data.hero_image);
+          setSettingsHeroUrl(data.hero_image);
+          setSettingsHeroFile(null);
+          const fileInput = document.getElementById('hero-file-input');
+          if (fileInput) fileInput.value = '';
+        }
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        alert('❌ Ошибка сохранения настроек: ' + (errData.error || `Код ${res.status}`));
+      }
+    } catch (err) {
+      alert('❌ Ошибка: ' + err.message);
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
+
+  useEffect(() => {
+    loadSettings();
+  }, []);
 
   useEffect(() => {
     if (currentPath === '/' || currentPath === '/services') {
@@ -157,6 +316,8 @@ function App() {
     formData.append('price', newProdPrice);
     formData.append('ozon_url', newProdOzon);
     formData.append('images_urls', newProdUrls);
+    formData.append('stock', String(newProdStock));
+    formData.append('is_available', String(newProdAvailable));
 
     if (newProdFiles) {
       for (let i = 0; i < newProdFiles.length; i++) {
@@ -192,22 +353,26 @@ function App() {
     }
   };
 
-    // Сброс формы товара
+  // Сброс формы товара
   const resetProductForm = () => {
     setNewProdName('');
     setNewProdPrice('');
     setNewProdOzon('');
     setNewProdUrls('');
-        setNewProdFiles(null);
+    setNewProdFiles(null);
+    setNewProdStock(0);
+    setNewProdAvailable(true);
     setEditProductId(null);
   };
 
-    // Заполнить форму для редактирования
+  // Заполнить форму для редактирования
   const startEditProduct = (product) => {
     setNewProdName(product.name);
-    setNewProdPrice(product.price);
+    setNewProdPrice(formatPrice(product.price));
     setNewProdOzon(product.ozon_url);
-        setNewProdUrls(product.images);
+    setNewProdUrls(product.images);
+    setNewProdStock(product.stock ?? 0);
+    setNewProdAvailable(product.is_available === true || product.is_available === 1);
     setEditProductId(product.id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -225,11 +390,41 @@ function App() {
     }
   };
 
-    // Переключение наличия товара прямо из таблицы
+  // Удаление заявки
+  const handleDeleteLead = async (id) => {
+    if (!window.confirm(`Вы уверены, что хотите удалить заявку #${id}?`)) {
+      return;
+    }
+    try {
+      const res = await fetch(`/api/admin/leads/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        loadAdminData();
+      } else if (res.status === 401) {
+        setIsAdminLoggedIn(false);
+        alert('Сессия истекла. Пожалуйста, войдите в панель управления заново.');
+      } else {
+        const textData = await res.text();
+        let errData = {};
+        try { errData = JSON.parse(textData); } catch (e) {}
+        alert('❌ Ошибка удаления заявки: ' + (errData.error || `Код ${res.status}`));
+      }
+    } catch (err) {
+      alert('Ошибка подключения к серверу при удалении');
+    }
+  };
+
+  // Переключение наличия товара прямо из таблицы
   const handleToggleAvailability = async (product) => {
-    // Поля stock и is_available физически отсутствуют в БД,
-    // поэтому ничего не делаем
-    alert('⏳ Статус «В наличии» временно недоступен, т.к. колонки нет в БД');
+    try {
+      const res = await fetch(`/api/admin/products/${product.id}/toggle`, { method: 'POST' });
+      if (res.ok) {
+        loadAdminData();
+      } else {
+        alert('❌ Ошибка переключения доступности');
+      }
+    } catch (err) {
+      alert('❌ Ошибка: ' + err.message);
+    }
   };
 
   // Работа с корзиной (добавление, изменение количества, подсчет суммы)
@@ -269,6 +464,37 @@ function App() {
   const handlePhoneChange = (e) => {
     const formatted = formatPhone(e.target.value);
     setOrderPhone(formatted);
+  };
+
+  // Маска цены (рубль)
+  const formatPrice = (value) => {
+    if (typeof value !== 'string') return '';
+    const digits = value.replace(/[^\d]/g, '');
+    if (!digits) return '';
+    const formattedDigits = Number(digits).toLocaleString('ru-RU');
+    return `${formattedDigits} ₽`;
+  };
+
+  const handlePriceChange = (e) => {
+    let val = e.target.value;
+    
+    if (val === '') {
+      setNewProdPrice('');
+      return;
+    }
+
+    const oldDigits = newProdPrice.replace(/[^\d]/g, '');
+    const newDigits = val.replace(/[^\d]/g, '');
+
+    // Если количество цифр не изменилось, но длина строки уменьшилась,
+    // значит стёрли пробел или символ рубля. В таком случае удаляем последнюю цифру.
+    if (newDigits === oldDigits && val.length < newProdPrice.length) {
+      if (oldDigits.length > 0) {
+        val = oldDigits.slice(0, -1);
+      }
+    }
+
+    setNewProdPrice(formatPrice(val));
   };
 
   // Получить первую картинку товара
@@ -331,7 +557,7 @@ function App() {
         </div>
         <div className="hero-visual">
           <div className="hero-glow"></div>
-          <img src="https://i.ibb.co/zH6mCgN/stitch.png" alt="Стич" className="hero-image" />
+          <img src={heroImage} alt="Хит продаж" className="hero-image" />
           <div className="hero-badge-card top-left">⭐ Хит продаж</div>
           <div className="hero-badge-card bottom-right">🚀 Новинка 2026</div>
         </div>
@@ -386,14 +612,15 @@ function App() {
             const firstImage = imagesArray[0] || '';
             const imgPath = firstImage.startsWith('http') ? firstImage : firstImage;
             const inStock = product.is_available === true || product.is_available === 1 || product.is_available === 'true';
+            const hasLimitedStock = inStock && product.stock > 0 && product.stock <= 5;
 
             return (
               <div key={product.id} className="product-card" style={{ animationDelay: `${index * 0.08}s` }}>
                 <div className="image-container">
-                  {product.stock > 0 && product.stock <= 5 && (
+                  {hasLimitedStock && (
                     <span className="badge badge-hot">🔥 Хит</span>
                   )}
-                  {product.stock > 20 && (
+                  {inStock && product.stock > 20 && (
                     <span className="badge badge-new">🆕 Новинка</span>
                   )}
                   {!inStock && (
@@ -405,10 +632,10 @@ function App() {
                 </div>
                 <div className="product-info">
                   <h3 className="product-title">{product.name}</h3>
-                  {inStock && product.stock > 0 && (
+                  {inStock && (
                     <div className="stock-info">
                       <span className="stock-dot"></span>
-                      {product.stock <= 5 ? `Осталось ${product.stock} шт` : 'В наличии'}
+                      {hasLimitedStock ? `Осталось ${product.stock} шт` : 'В наличии'}
                     </div>
                   )}
                   <div className="product-bottom">
@@ -526,52 +753,99 @@ function App() {
                 </button>
               </div>
               {adminProducts.length === 0 ? <p className="admin-empty-hint">Товаров пока нет</p> : 
-                <div className="products-table">
-                  <div className="table-header">
-                    <span className="col-id">ID</span>
-                    <span className="col-img">Фото</span>
-                    <span className="col-name">Название</span>
-                    <span className="col-price">Цена</span>
-                    <span className="col-status">Статус</span>
-                    <span className="col-actions">Действия</span>
+                <>
+                  {/* Десктопная таблица */}
+                  <div className="products-table products-table-desktop">
+                    <div className="table-header">
+                      <span className="col-id">ID</span>
+                      <span className="col-img">Фото</span>
+                      <span className="col-name">Название</span>
+                      <span className="col-price">Цена</span>
+                      <span className="col-status">Статус</span>
+                      <span className="col-actions">Действия</span>
+                    </div>
+                    {adminProducts.map(product => {
+                      const imagesArray = product.images.split(';');
+                      const firstImage = imagesArray[0] || '';
+                      const inStock = product.is_available === true || product.is_available === 1 || product.is_available === 'true';
+                        
+                      return (
+                        <div key={product.id} className="table-row">
+                          <span className="col-id">#{product.id}</span>
+                          <span className="col-img">
+                            {firstImage && (
+                              <img src={firstImage.startsWith('http') ? firstImage : ''} alt="" className="table-product-img" onError={(e) => { e.target.style.display = 'none'; }} />
+                            )}
+                          </span>
+                          <span className="col-name">{product.name}</span>
+                          <span className="col-price">{product.price}</span>
+                          <span className="col-status">
+                            <label className="toggle-switch">
+                              <input 
+                                type="checkbox" 
+                                checked={inStock} 
+                                onChange={() => handleToggleAvailability(product)}
+                              />
+                              <span className="toggle-slider"></span>
+                              <span className="toggle-label">{inStock ? 'В наличии' : 'Нет'}</span>
+                            </label>
+                          </span>
+                          <span className="col-actions">
+                            <button className="btn-edit" onClick={() => {
+                              startEditProduct(product);
+                              setIsAddModalOpen(true);
+                            }} title="Редактировать">✏️</button>
+                            <button className="btn-delete" onClick={() => setDeleteConfirmId(product.id)} title="Удалить">🗑️</button>
+                          </span>
+                        </div>
+                      );
+                    })}
                   </div>
-                  {adminProducts.map(product => {
-                    const imagesArray = product.images.split(';');
-                    const firstImage = imagesArray[0] || '';
-                    const inStock = product.is_available === true || product.is_available === 1 || product.is_available === 'true';
-                      
-                    return (
-                      <div key={product.id} className="table-row">
-                        <span className="col-id">#{product.id}</span>
-                        <span className="col-img">
-                          {firstImage && (
-                            <img src={firstImage.startsWith('http') ? firstImage : ''} alt="" className="table-product-img" onError={(e) => { e.target.style.display = 'none'; }} />
-                          )}
-                        </span>
-                        <span className="col-name">{product.name}</span>
-                        <span className="col-price">{product.price}</span>
-                        <span className="col-status">
-                          <label className="toggle-switch">
-                            <input 
-                              type="checkbox" 
-                              checked={inStock} 
-                              onChange={() => handleToggleAvailability(product)}
-                            />
-                            <span className="toggle-slider"></span>
-                            <span className="toggle-label">{inStock ? 'В наличии' : 'Нет'}</span>
-                          </label>
-                        </span>
-                        <span className="col-actions">
-                          <button className="btn-edit" onClick={() => {
-                            startEditProduct(product);
-                            setIsAddModalOpen(true);
-                          }} title="Редактировать">✏️</button>
-                          <button className="btn-delete" onClick={() => setDeleteConfirmId(product.id)} title="Удалить">🗑️</button>
-                        </span>
-                      </div>
-                    );
-                  })}
-                </div>
+
+                  {/* Мобильные карточки товаров */}
+                  <div className="products-cards-mobile">
+                    {adminProducts.map(product => {
+                      const imagesArray = product.images.split(';');
+                      const firstImage = imagesArray[0] || '';
+                      const inStock = product.is_available === true || product.is_available === 1 || product.is_available === 'true';
+
+                      return (
+                        <div key={product.id} className="admin-product-card">
+                          <div className="admin-product-card-top">
+                            <div className="admin-product-card-img">
+                              {firstImage && (
+                                <img src={firstImage.startsWith('http') ? firstImage : ''} alt="" onError={(e) => { e.target.style.display = 'none'; }} />
+                              )}
+                            </div>
+                            <div className="admin-product-card-info">
+                              <span className="admin-product-card-id">#{product.id}</span>
+                              <h4 className="admin-product-card-name">{product.name}</h4>
+                              <span className="admin-product-card-price">{product.price}</span>
+                            </div>
+                          </div>
+                          <div className="admin-product-card-bottom">
+                            <label className="toggle-switch">
+                              <input 
+                                type="checkbox" 
+                                checked={inStock} 
+                                onChange={() => handleToggleAvailability(product)}
+                              />
+                              <span className="toggle-slider"></span>
+                              <span className="toggle-label">{inStock ? 'В наличии' : 'Нет'}</span>
+                            </label>
+                            <div className="admin-product-card-actions">
+                              <button className="btn-edit" onClick={() => {
+                                startEditProduct(product);
+                                setIsAddModalOpen(true);
+                              }} title="Редактировать">✏️</button>
+                              <button className="btn-delete" onClick={() => setDeleteConfirmId(product.id)} title="Удалить">🗑️</button>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </>
               }
 
               {/* Подтверждение удаления */}
@@ -589,6 +863,51 @@ function App() {
 
           {/* САЙДБАР — ЛИДЫ И СТАТИСТИКА */}
           <div className="admin-sidebar">
+            <div className="admin-block">
+              <h3>Настройки главного экрана</h3>
+              <form onSubmit={handleSaveSettings} className="admin-form">
+                <div className="form-group">
+                  <label>Текущий хит продаж:</label>
+                  {heroImage && (
+                    <img 
+                      src={heroImage} 
+                      alt="Превью" 
+                      style={{ 
+                        width: '100%', 
+                        maxHeight: '180px', 
+                        objectFit: 'contain', 
+                        borderRadius: 'var(--radius-sm)', 
+                        marginTop: '8px', 
+                        border: '1.5px solid var(--glass-border)',
+                        background: 'rgba(255, 255, 255, 0.40)'
+                      }} 
+                    />
+                  )}
+                </div>
+                <div className="form-group">
+                  <label>Ссылка на изображение</label>
+                  <input 
+                    type="text" 
+                    placeholder="https://example.com/image.png" 
+                    value={settingsHeroUrl} 
+                    onChange={(e) => setSettingsHeroUrl(e.target.value)} 
+                  />
+                </div>
+                <div className="form-group">
+                  <label>Или загрузить файл</label>
+                  <input 
+                    id="hero-file-input"
+                    type="file" 
+                    accept="image/*" 
+                    onChange={(e) => setSettingsHeroFile(e.target.files ? e.target.files[0] : null)} 
+                  />
+                </div>
+                <button type="submit" className="btn-admin-submit" disabled={isSavingSettings}>
+                  {isSavingSettings ? 'Сохранение...' : '💾 Сохранить изображение'}
+                </button>
+              </form>
+            </div>
+
             <div className="admin-block admin-block-compact">
               <h3>Поступившие заявки (Лиды)</h3>
               <div className="leads-list">
@@ -597,7 +916,16 @@ function App() {
                     <div key={lead.id} className="lead-item-card">
                       <div className="lead-meta">
                         <span>ID: #{lead.id}</span>
-                        <span>{lead.created_at ? new Date(lead.created_at).toLocaleString() : ''}</span>
+                        <div className="lead-meta-right">
+                          <span>{lead.created_at ? new Date(lead.created_at).toLocaleString() : ''}</span>
+                          <button 
+                            className="btn-delete-lead" 
+                            onClick={() => handleDeleteLead(lead.id)}
+                            title="Удалить заявку"
+                          >
+                            🗑️
+                          </button>
+                        </div>
                       </div>
                       <div className="lead-name">👤 {lead.name}</div>
                       <div className="lead-phone">📞 {lead.phone}</div>
@@ -642,7 +970,13 @@ function App() {
                 </div>
                 <div className="form-group">
                   <label>Цена *</label>
-                  <input type="text" value={newProdPrice} onChange={(e) => setNewProdPrice(e.target.value)} placeholder="450 ₽" required />
+                  <input 
+                    type="text" 
+                    value={newProdPrice} 
+                    onChange={handlePriceChange} 
+                    placeholder="450 ₽" 
+                    required 
+                  />
                 </div>
                 <div className="form-group">
                   <label>Ссылка на Ozon *</label>
@@ -704,6 +1038,25 @@ function App() {
                   <label>Загрузить файлы картинок</label>
                   <input type="file" multiple onChange={(e) => setNewProdFiles(e.target.files)} accept="image/*" />
                 </div>
+                <div className="form-group">
+                  <label>Количество на складе</label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={newProdStock}
+                    onChange={(e) => setNewProdStock(parseInt(e.target.value) || 0)}
+                    placeholder="0"
+                  />
+                </div>
+                <div className="form-group" style={{ flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
+                  <label style={{ margin: 0 }}>В наличии</label>
+                  <input
+                    type="checkbox"
+                    checked={newProdAvailable}
+                    onChange={(e) => setNewProdAvailable(e.target.checked)}
+                    style={{ width: '18px', height: '18px', cursor: 'pointer' }}
+                  />
+                </div>
                 <button type="submit" className="btn-admin-submit">
                   {editProductId ? '💾 Сохранить изменения' : '➕ Добавить на витрину'}
                 </button>
@@ -716,20 +1069,13 @@ function App() {
   };
   return (
     <div className="app-container">
-            <header className="navbar">
-        <div className="nav-logo" style={{ cursor: 'pointer' }} onClick={() => navigateTo('/')}>
-          ❄️ <span>Мороз Плей</span>
-        </div>
-        {currentPath === '/admin' ? (
-          <div className="admin-header-bar">
-            <span className="admin-header-title">Панель управления</span>
-            {isAdminLoggedIn && (
-              <button className="btn-logout" onClick={handleLogout}>Выйти</button>
-            )}
+      <header className="navbar">
+        <div className="navbar-left">
+          <div className="nav-logo" style={{ cursor: 'pointer' }} onClick={() => navigateTo('/')}>
+            ❄️ <span>Мороз Плей</span>
           </div>
-        ) : (
-          <>
-            <nav className="nav-links">
+          {currentPath !== '/admin' && (
+            <nav className="nav-links nav-links-desktop">
               <button
                 onClick={() => navigateTo('/')}
                 className={currentPath === '/' || currentPath === '/services' ? 'active' : ''}
@@ -749,23 +1095,98 @@ function App() {
                 Админка
               </button>
             </nav>
-            <button className="cart-btn" onClick={() => setIsCartOpen(true)}>
-              🛒 Корзина
-              {cart.reduce((sum, i) => sum + i.quantity, 0) > 0 && (
-                <span style={{
-                  background: 'rgba(255,255,255,0.3)',
-                  borderRadius: '100px',
-                  padding: '1px 7px',
-                  fontSize: '12px',
-                  fontWeight: '700'
-                }}>
-                  {cart.reduce((sum, i) => sum + i.quantity, 0)}
-                </span>
+          )}
+        </div>
+        <div className="navbar-right">
+          {currentPath === '/admin' ? (
+            <>
+              <span className="admin-header-title">Панель управления</span>
+              {isAdminLoggedIn && (
+                <button className="btn-logout" onClick={handleLogout}>Выйти</button>
               )}
+            </>
+          ) : (
+            <>
+              <WeatherBadge
+                fallbackCoords={MOSCOW_COORDS}
+                style={{
+                  background: 'rgba(58,160,232,0.10)',
+                  border: '1px solid rgba(58,160,232,0.25)',
+                  borderRadius: '20px',
+                  color: 'var(--accent-dark)',
+                  fontSize: '13px',
+                  fontWeight: '600',
+                  padding: '5px 14px',
+                  minHeight: '32px',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              />
+              <button className="cart-btn cart-btn-desktop" onClick={() => setIsCartOpen(true)}>
+                🛒 Корзина
+                {cart.reduce((sum, i) => sum + i.quantity, 0) > 0 && (
+                  <span style={{
+                    background: 'rgba(255,255,255,0.3)',
+                    borderRadius: '100px',
+                    padding: '1px 7px',
+                    fontSize: '12px',
+                    fontWeight: '700'
+                  }}>
+                    {cart.reduce((sum, i) => sum + i.quantity, 0)}
+                  </span>
+                )}
+              </button>
+              {/* Мобильная кнопка корзины (компактная) */}
+              <button className="cart-btn-mobile" onClick={() => setIsCartOpen(true)}>
+                🛒
+                {cart.reduce((sum, i) => sum + i.quantity, 0) > 0 && (
+                  <span className="cart-mobile-badge">
+                    {cart.reduce((sum, i) => sum + i.quantity, 0)}
+                  </span>
+                )}
+              </button>
+            </>
+          )}
+          {/* Гамбургер-меню (только мобилка) */}
+          {currentPath !== '/admin' && (
+            <button
+              className={`hamburger-btn ${isMobileMenuOpen ? 'open' : ''}`}
+              onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+              aria-label="Меню"
+            >
+              <span className="hamburger-line"></span>
+              <span className="hamburger-line"></span>
+              <span className="hamburger-line"></span>
             </button>
-          </>
-        )}
+          )}
+        </div>
       </header>
+
+      {/* Мобильное меню (overlay) */}
+      {isMobileMenuOpen && currentPath !== '/admin' && (
+        <div className="mobile-menu-overlay" onClick={() => setIsMobileMenuOpen(false)}>
+          <nav className="mobile-menu" onClick={(e) => e.stopPropagation()}>
+            <button
+              onClick={() => { navigateTo('/'); setIsMobileMenuOpen(false); }}
+              className={currentPath === '/' || currentPath === '/services' ? 'active' : ''}
+            >
+              🏠 Главная
+            </button>
+            <button
+              onClick={() => { navigateTo('/contacts'); setIsMobileMenuOpen(false); }}
+              className={currentPath === '/contacts' ? 'active' : ''}
+            >
+              📞 Контакты
+            </button>
+            <button
+              onClick={() => { navigateTo('/admin'); setIsMobileMenuOpen(false); }}
+              className={currentPath === '/admin' ? 'active' : ''}
+            >
+              ⚙️ Админка
+            </button>
+          </nav>
+        </div>
+      )}
 
       {currentPath === '/' || currentPath === '/services' ? renderMainShop() : null}
       {currentPath === '/contacts' ? renderContacts() : null}

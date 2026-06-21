@@ -51,6 +51,19 @@ async function initDB() {
             )
         `);
 
+        console.log("Проверяем таблицу settings...");
+        await pool.request().query(`
+            IF OBJECT_ID('dbo.settings', 'U') IS NULL
+            CREATE TABLE settings (
+                key_name NVARCHAR(255) PRIMARY KEY,
+                key_value NVARCHAR(MAX) NOT NULL
+            )
+        `);
+        await pool.request().query(`
+            IF NOT EXISTS (SELECT 1 FROM dbo.settings WHERE key_name = 'hero_image')
+            INSERT INTO dbo.settings (key_name, key_value) VALUES ('hero_image', '/uploads/hero.png')
+        `);
+
         console.log("Заполняем базу товарами «Мороз Плей»...");
         await pool.request().query(`
             INSERT INTO services (name, price, images, ozon_url, stock, is_available) VALUES 
