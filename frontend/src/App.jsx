@@ -56,22 +56,6 @@ function App() {
     setCurrentPath(path);
   };
 
-  // Анимация падающего снега
-  useEffect(() => {
-    const createSnowflake = () => {
-      const snowflake = document.createElement('div');
-      snowflake.classList.add('snowflake');
-      snowflake.textContent = '❄';
-      snowflake.style.left = Math.random() * 100 + 'vw';
-      snowflake.style.animationDuration = Math.random() * 3 + 2 + 's';
-      snowflake.style.opacity = Math.random();
-      snowflake.style.fontSize = Math.random() * 10 + 10 + 'px';
-      document.body.appendChild(snowflake);
-      setTimeout(() => snowflake.remove(), 5000);
-    };
-    const snowInterval = setInterval(createSnowflake, 250);
-    return () => clearInterval(snowInterval);
-  }, []);
 
   // Синхронизация корзины с локальной памятью браузера
   useEffect(() => {
@@ -316,32 +300,32 @@ function App() {
       }
     } catch (err) { setOrderStatus('error'); }
   };
-    // --- ВИТРИНА МАГАЗИНА (ГЛАВНАЯ) ---
+  // --- ВИТРИНА МАГАЗИНА (ГЛАВНАЯ) ---
   const renderMainShop = () => (
     <>
       {/* HERO-СЕКЦИЯ */}
       <section className="hero">
         <div className="hero-content">
-          <div className="hero-badge">🔥 ХИТЫ ПРОДАЖ НА OZON 2026</div>
+          <div className="hero-badge">🔥 Хиты продаж на OZON 2026</div>
           <h1 className="hero-title">
-            Территория <br />
-            <span className="hero-gradient">Крутых Игрушек</span> <br />
-            и Трендов!
+            Территория{' '}
+            <span className="hero-gradient">Крутых Игрушек</span>
+            {' '}и Трендов!
           </h1>
           <p className="hero-description">
-            Официальный магазин <strong>Мороз Плей</strong>. Мы находим самые хайповые 
+            Официальный магазин <strong>Мороз Плей</strong>. Мы находим самые хайповые
             антистрессы, милые мягкие игрушки и гаджеты, которые обожают дети и взрослые!
           </p>
           <div className="hero-actions">
-            <a href="https://www.ozon.ru" target="_blank" className="btn-ozon">
-              <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+            <a href="https://www.ozon.ru" target="_blank" rel="noreferrer" className="btn-ozon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
               Купить на OZON
             </a>
             <button className="btn-catalog" onClick={() => {
               document.querySelector('.products-section')?.scrollIntoView({ behavior: 'smooth' });
             }}>
               Смотреть каталог
-              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
             </button>
           </div>
         </div>
@@ -363,10 +347,12 @@ function App() {
           </div>
           <div className="stat-item">
             <span className="stat-number">457+</span>
+            <span className="stat-icon">💬</span>
             <span className="stat-label">Честных отзывов</span>
           </div>
           <div className="stat-item">
             <span className="stat-number">1 984+</span>
+            <span className="stat-icon">📦</span>
             <span className="stat-label">Заказов доставлено</span>
           </div>
         </div>
@@ -376,7 +362,7 @@ function App() {
       <section className="products-section">
         <div className="section-header">
           <h2>Наш ассортимент</h2>
-          <p>Товары, которые загружаются из базы данных MS SQL Server</p>
+          <p>Антистрессы, мягкие игрушки и гаджеты с доставкой по всей России</p>
         </div>
 
         {/* Скелетоны загрузки */}
@@ -400,9 +386,9 @@ function App() {
             const firstImage = imagesArray[0] || '';
             const imgPath = firstImage.startsWith('http') ? firstImage : firstImage;
             const inStock = product.is_available === true || product.is_available === 1 || product.is_available === 'true';
-            
+
             return (
-              <div key={product.id} className="product-card" style={{ animationDelay: `${index * 0.1}s` }}>
+              <div key={product.id} className="product-card" style={{ animationDelay: `${index * 0.08}s` }}>
                 <div className="image-container">
                   {product.stock > 0 && product.stock <= 5 && (
                     <span className="badge badge-hot">🔥 Хит</span>
@@ -429,14 +415,14 @@ function App() {
                     <div className="price-block">
                       <span className="product-price">{product.price}</span>
                       {product.ozon_url && (
-                        <a href={product.ozon_url} target="_blank" className="ozon-link">
-                          <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                        <a href={product.ozon_url} target="_blank" rel="noreferrer" className="ozon-link">
+                          <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
                           На OZON
                         </a>
                       )}
                     </div>
                     <button className="btn-buy" onClick={() => addToCart(product)} disabled={!inStock}>
-                      {inStock ? 'Купить' : 'Нет'}
+                      {inStock ? 'В корзину' : 'Нет'}
                     </button>
                   </div>
                 </div>
@@ -447,12 +433,12 @@ function App() {
 
         {hasMore && (
           <div className="load-more-container">
-            <button className="btn-load-more" onClick={() => { const n = page + 1; setPage(n); loadProducts(n); }} disabled={loading}>
-              {loading ? (
-                <span className="loading-spinner"></span>
-              ) : (
-                'Показать еще'
-              )}
+            <button
+              className="btn-load-more"
+              onClick={() => { const n = page + 1; setPage(n); loadProducts(n); }}
+              disabled={loading}
+            >
+              {loading ? <span className="loading-spinner"></span> : 'Показать ещё'}
             </button>
           </div>
         )}
@@ -462,10 +448,39 @@ function App() {
 
   // --- СТРАНИЦА КОНТАКТОВ ---
   const renderContacts = () => (
-    <section className="hero" style={{ padding: '120px 20px' }}>
-      <h1>Наши контакты</h1>
-      <p style={{ marginTop: '20px', fontSize: '20px' }}>📍 Мы доставляем товары по всей России прямо в пункты выдачи <strong>Ozon</strong>!</p>
-      <p style={{ marginTop: '10px' }}>По любым вопросам пишите менеджеру или оформляйте заявку через корзину.</p>
+    <section className="contacts-section">
+      <h1 className="contacts-title">Свяжитесь с нами</h1>
+      <p className="contacts-subtitle">
+        Мы доставляем товары по всей России в пункты выдачи <strong>Ozon</strong>.
+        По любым вопросам пишите нам в Telegram!
+      </p>
+      <div className="contacts-cards">
+        <a
+          href="https://t.me/moroz_play"
+          target="_blank"
+          rel="noreferrer"
+          className="contact-card tg"
+        >
+          <span className="contact-card-icon">✈️</span>
+          <span className="contact-card-label">Telegram</span>
+          <span className="contact-card-desc">@moroz_play</span>
+        </a>
+        <a
+          href="https://www.ozon.ru"
+          target="_blank"
+          rel="noreferrer"
+          className="contact-card ozon"
+        >
+          <span className="contact-card-icon">🛒</span>
+          <span className="contact-card-label">Магазин на Ozon</span>
+          <span className="contact-card-desc">Мороз Плей</span>
+        </a>
+      </div>
+      <div className="contacts-info">
+        📍 Доставка по всей России через пункты выдачи Ozon.<br />
+        По вопросам заказов и наличия товаров — пишите в Telegram.
+        Отвечаем быстро! 😊
+      </div>
     </section>
   );
   // --- СТРАНИЦА АДМИНКИ ---
@@ -478,7 +493,7 @@ function App() {
             <form onSubmit={handleLogin} className="admin-form">
               <input type="text" placeholder="Логин" value={loginUsername} onChange={(e) => setLoginUsername(e.target.value)} required />
               <input type="password" placeholder="Пароль" value={loginPassword} onChange={(e) => setLoginPassword(e.target.value)} required />
-              {loginError && <p style={{ color: '#ff007f', fontSize: '14px', margin: 0 }}>{loginError}</p>}
+              {loginError && <p className="login-error">{loginError}</p>}
               <button type="submit" className="btn-admin-submit">Войти</button>
             </form>
           </div>
@@ -510,7 +525,7 @@ function App() {
                   + Добавить новый товар
                 </button>
               </div>
-              {adminProducts.length === 0 ? <p style={{ color: '#86868b' }}>Товаров пока нет</p> : 
+              {adminProducts.length === 0 ? <p className="admin-empty-hint">Товаров пока нет</p> : 
                 <div className="products-table">
                   <div className="table-header">
                     <span className="col-id">ID</span>
@@ -577,7 +592,7 @@ function App() {
             <div className="admin-block admin-block-compact">
               <h3>Поступившие заявки (Лиды)</h3>
               <div className="leads-list">
-                {adminLeads.length === 0 ? <p style={{ color: '#86868b' }}>Новых заявок нет</p> : 
+                {adminLeads.length === 0 ? <p className="admin-empty-hint">Новых заявок нет</p> : 
                   adminLeads.map(lead => (
                     <div key={lead.id} className="lead-item-card">
                       <div className="lead-meta">
@@ -613,12 +628,12 @@ function App() {
                 if (!editProductId) setIsAddModalOpen(false);
               }} className="admin-form">
                 {editProductId && (
-                  <div style={{ background: '#f0f7ff', color: '#0071e3', padding: '10px 14px', borderRadius: '8px', marginBottom: '12px', fontSize: '13px', fontWeight: 500, border: '1px solid #d2e6ff' }}>
-                    Редактирование товара ID: {editProductId}
-                    <button type="button" onClick={() => {
+                  <div className="edit-product-banner">
+                    ✏️ Редактирование товара ID: #{editProductId}
+                    <button type="button" className="edit-product-cancel" onClick={() => {
                       resetProductForm();
                       setIsAddModalOpen(false);
-                    }} style={{ marginLeft: '10px', background: '#0071e3', border: 'none', color: 'white', padding: '4px 12px', borderRadius: '16px', cursor: 'pointer', fontWeight: 500, fontSize: '12px' }}>Отмена</button>
+                    }}>Отмена</button>
                   </div>
                 )}
                 <div className="form-group">
@@ -702,21 +717,51 @@ function App() {
   return (
     <div className="app-container">
             <header className="navbar">
-        <div className="nav-logo" style={{ cursor: 'pointer' }} onClick={() => navigateTo('/')}>❄️ Мороз Плей</div>
+        <div className="nav-logo" style={{ cursor: 'pointer' }} onClick={() => navigateTo('/')}>
+          ❄️ <span>Мороз Плей</span>
+        </div>
         {currentPath === '/admin' ? (
           <div className="admin-header-bar">
             <span className="admin-header-title">Панель управления</span>
-            <button className="btn-logout" onClick={handleLogout}>Выйти</button>
+            {isAdminLoggedIn && (
+              <button className="btn-logout" onClick={handleLogout}>Выйти</button>
+            )}
           </div>
         ) : (
           <>
             <nav className="nav-links">
-              <button onClick={() => navigateTo('/')} className={currentPath === '/' || currentPath === '/services' ? 'active' : ''} style={{ background: 'none', border: 'none', font: 'inherit', cursor: 'pointer' }}>Главная</button>
-              <button onClick={() => navigateTo('/contacts')} className={currentPath === '/contacts' ? 'active' : ''} style={{ background: 'none', border: 'none', font: 'inherit', cursor: 'pointer' }}>Контакты</button>
-              <button onClick={() => navigateTo('/admin')} className={currentPath === '/admin' ? 'active' : ''} style={{ background: 'none', border: 'none', font: 'inherit', cursor: 'pointer' }}>Админка</button>
+              <button
+                onClick={() => navigateTo('/')}
+                className={currentPath === '/' || currentPath === '/services' ? 'active' : ''}
+              >
+                Главная
+              </button>
+              <button
+                onClick={() => navigateTo('/contacts')}
+                className={currentPath === '/contacts' ? 'active' : ''}
+              >
+                Контакты
+              </button>
+              <button
+                onClick={() => navigateTo('/admin')}
+                className={currentPath === '/admin' ? 'active' : ''}
+              >
+                Админка
+              </button>
             </nav>
             <button className="cart-btn" onClick={() => setIsCartOpen(true)}>
-              🛒 Корзина ({cart.reduce((sum, i) => sum + i.quantity, 0)})
+              🛒 Корзина
+              {cart.reduce((sum, i) => sum + i.quantity, 0) > 0 && (
+                <span style={{
+                  background: 'rgba(255,255,255,0.3)',
+                  borderRadius: '100px',
+                  padding: '1px 7px',
+                  fontSize: '12px',
+                  fontWeight: '700'
+                }}>
+                  {cart.reduce((sum, i) => sum + i.quantity, 0)}
+                </span>
+              )}
             </button>
           </>
         )}
@@ -867,7 +912,9 @@ function App() {
       )}
 
       <footer className="footer">
-        <p>&copy; 2026 Мороз Плей</p>
+        <p>
+          &copy; 2026 <strong>Мороз Плей</strong> &nbsp;·&nbsp; Антистрессы, игрушки и гаджеты с доставкой по всей России
+        </p>
       </footer>
     </div>
   );
